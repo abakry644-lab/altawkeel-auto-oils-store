@@ -1,4 +1,5 @@
 import { trpc } from "@/lib/trpc";
+import { createCartOrderMessage, createWhatsAppUrl } from "@/lib/contact";
 import type { Cart } from "@shared/commerce/types";
 import {
   createContext,
@@ -16,7 +17,7 @@ import {
  * - Talks ONLY to backend-agnostic `commerce.*` tRPC procedures.
  * - Persists the cart id in localStorage and rehydrates on mount.
  * - Exposes a tiny imperative surface to UI: addItem, updateQuantity,
- *   removeItem, openCart, proceedToCheckout. Everything is typed against
+ *   removeItem, openCart, sendOrderToWhatsApp. Everything is typed against
  *   `shared/commerce/types` — the Shopify backend is invisible.
  */
 
@@ -44,7 +45,7 @@ type CartContextValue = {
   updateQuantity: (lineId: string, quantity: number) => Promise<void>;
   removeItem: (lineId: string) => Promise<void>;
   clearCart: () => void;
-  proceedToCheckout: () => void;
+  sendOrderToWhatsApp: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -160,10 +161,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setCart(null);
   }, []);
 
-  const proceedToCheckout = useCallback(() => {
-    if (!cart?.checkoutUrl) return;
-    // checkoutUrl already has channel=online_store appended server-side.
-    window.open(cart.checkoutUrl, "_blank", "noopener,noreferrer");
+  const sendOrderToWhatsApp = useCallback(() => {
+    if (!cart?.items.length) return;
+    window.open(createWhatsAppUrl(createCartOrderMessage(cart)), "_blank", "noopener,noreferrer");
   }, [cart]);
 
   const value = useMemo<CartContextValue>(
@@ -178,7 +178,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       updateQuantity,
       removeItem,
       clearCart,
-      proceedToCheckout,
+      sendOrderToWhatsApp,
     }),
     [
       cart,
@@ -191,7 +191,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       updateQuantity,
       removeItem,
       clearCart,
-      proceedToCheckout,
+      sendOrderToWhatsApp,
     ]
   );
 

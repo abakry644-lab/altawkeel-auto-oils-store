@@ -1,9 +1,9 @@
 import { useCart } from "@/contexts/CartContext";
 import { formatPrice } from "@/lib/store";
-import { ArrowLeft, Minus, PackageOpen, Plus, ShieldCheck, Trash2, X } from "lucide-react";
+import { ArrowLeft, MessageCircle, Minus, PackageOpen, Plus, Trash2, X } from "lucide-react";
 
 export default function CartDrawer() {
-  const { cart, closeCart, isOpen, loading, removeItem, updateQuantity, proceedToCheckout } = useCart();
+  const { cart, closeCart, isOpen, loading, removeItem, updateQuantity, sendOrderToWhatsApp } = useCart();
   if (!isOpen) return null;
 
   return (
@@ -32,7 +32,7 @@ export default function CartDrawer() {
                 ))}
               </div>
             </div>
-            <div className="border-t border-[#e7e1d8] bg-white px-6 py-5"><div className="mb-4 flex items-end justify-between"><span className="text-sm font-bold text-[#61726b]">الإجمالي</span><strong className="text-2xl font-extrabold text-[#163d36]">{formatPrice(cart.total)}</strong></div><button disabled={loading} onClick={proceedToCheckout} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#bf8332] px-5 py-3.5 text-sm font-extrabold text-white shadow-[0_10px_20px_rgba(191,131,50,.22)] transition hover:bg-[#a87028] active:scale-[.97] disabled:opacity-60">إتمام الطلب <ArrowLeft size={18} /></button><p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[11px] font-medium text-[#798780]"><ShieldCheck size={15} className="text-[#398064]" /> ستُدخل بيانات التوصيل والدفع بأمان في صفحة الإتمام.</p></div>
+            <div className="border-t border-[#e7e1d8] bg-white px-6 py-5"><div className="mb-4 flex items-end justify-between"><span className="text-sm font-bold text-[#61726b]">الإجمالي</span><strong className="text-2xl font-extrabold text-[#163d36]">{formatPrice(cart.total)}</strong></div><button disabled={loading} onClick={sendOrderToWhatsApp} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 py-3.5 text-sm font-extrabold text-white shadow-[0_10px_20px_rgba(37,211,102,.25)] transition hover:bg-[#1fb95a] active:scale-[.97] disabled:opacity-60">إرسال الطلب عبر واتساب <ArrowLeft size={18} /></button><p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[11px] font-medium text-[#798780]"><MessageCircle size={15} className="text-[#25A856]" /> ستُفتح رسالة تتضمن تفاصيل الطلب لإرسالها عبر واتساب.</p></div>
           </>
         )}
       </aside>
