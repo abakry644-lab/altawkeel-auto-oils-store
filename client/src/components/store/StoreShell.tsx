@@ -86,7 +86,10 @@ export default function StoreShell({ children }: { children: ReactNode }) {
             <p className="text-sm leading-7 text-[#c8d3cf]">السلة والدفع الآمن وبيانات التوصيل متاحة خلال خطوات إتمام الطلب.</p>
           </div>
         </div>
-        <div className="border-t border-white/10 py-5 text-center text-xs text-[#99aaa4]">© {new Date().getFullYear()} التوكيل — زيوت وفلاتر السيارات</div>
+        <div className="border-t border-white/10 py-5 text-center text-xs text-[#99aaa4]">
+          <p>© {new Date().getFullYear()} التوكيل — زيوت وفلاتر السيارات</p>
+          <p className="mt-1.5 text-[11px] font-medium text-[#c6a263]">صُمّم بواسطة <span dir="ltr" className="font-bold tracking-wide text-[#e2bd73]">Eng/Ahmed Bakry</span></p>
+        </div>
       </footer>
       <WhatsAppButton />
       <CartDrawer />
