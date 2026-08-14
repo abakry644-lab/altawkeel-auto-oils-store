@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Cart } from "../shared/commerce/types";
-import { WHATSAPP_NUMBER, createCartOrderMessage, createWhatsAppUrl } from "../client/src/lib/contact";
+import { WHATSAPP_NUMBER, createCartOrderMessage, createWhatsAppUrl, dispatchCartOrderToWhatsApp } from "../client/src/lib/contact";
 
 describe("رابط التواصل عبر واتساب", () => {
   it("يربط بالرقم المعتمد مع رسالة عربية جاهزة", () => {
@@ -36,5 +36,37 @@ describe("رابط التواصل عبر واتساب", () => {
     expect(message).toContain("Castrol GTX");
     expect(message).toContain("الكمية: 2");
     expect(message).toContain("إجمالي الطلب:");
+  });
+
+  it("يفتح رسالة واتساب ثم يفرغ السلة ويغلقها بالترتيب", () => {
+    const cart: Cart = {
+      id: "cart-2",
+      checkoutUrl: "https://example.test/checkout",
+      itemCount: 1,
+      subtotal: { amount: "500", currencyCode: "EGP" },
+      total: { amount: "500", currencyCode: "EGP" },
+      items: [{
+        lineId: "line-2",
+        variantId: "variant-2",
+        productHandle: "mobil-super-4t",
+        productTitle: "Mobil super 4T",
+        variantTitle: "Default Title",
+        image: null,
+        unitPrice: { amount: "500", currencyCode: "EGP" },
+        quantity: 1,
+        lineTotal: { amount: "500", currencyCode: "EGP" },
+      }],
+    };
+    const calls: string[] = [];
+
+    const dispatched = dispatchCartOrderToWhatsApp(cart, {
+      openUrl: url => calls.push(`open:${url}`),
+      clearCart: () => calls.push("clear"),
+      closeCart: () => calls.push("close"),
+    });
+
+    expect(dispatched).toBe(true);
+    expect(calls[0]).toContain("https://wa.me/201099014725");
+    expect(calls.slice(1)).toEqual(["clear", "close"]);
   });
 });

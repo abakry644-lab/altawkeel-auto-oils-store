@@ -1,5 +1,5 @@
 import { trpc } from "@/lib/trpc";
-import { createCartOrderMessage, createWhatsAppUrl } from "@/lib/contact";
+import { dispatchCartOrderToWhatsApp } from "@/lib/contact";
 import type { Cart } from "@shared/commerce/types";
 import {
   createContext,
@@ -162,9 +162,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const sendOrderToWhatsApp = useCallback(() => {
-    if (!cart?.items.length) return;
-    window.open(createWhatsAppUrl(createCartOrderMessage(cart)), "_blank", "noopener,noreferrer");
-  }, [cart]);
+    dispatchCartOrderToWhatsApp(cart, {
+      openUrl: url => window.open(url, "_blank", "noopener,noreferrer"),
+      clearCart,
+      closeCart,
+    });
+  }, [cart, clearCart, closeCart]);
 
   const value = useMemo<CartContextValue>(
     () => ({

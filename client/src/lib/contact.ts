@@ -18,3 +18,18 @@ export function createCartOrderMessage(cart: Cart) {
 
   return `مرحبًا، أرغب في تأكيد الطلب التالي من التوكيل:\n\n${items}\n\nإجمالي الطلب: ${formatPrice(cart.total)}\n\nالاسم:\nرقم الهاتف:\nالعنوان التفصيلي:`;
 }
+
+type OrderDispatchActions = {
+  openUrl: (url: string) => void;
+  clearCart: () => void;
+  closeCart: () => void;
+};
+
+export function dispatchCartOrderToWhatsApp(cart: Cart | null, actions: OrderDispatchActions) {
+  if (!cart?.items.length) return false;
+
+  actions.openUrl(createWhatsAppUrl(createCartOrderMessage(cart)));
+  actions.clearCart();
+  actions.closeCart();
+  return true;
+}
