@@ -1,4 +1,5 @@
-import type { Money, Product } from "@shared/commerce/types";
+import type { Money } from "@shared/commerce/types";
+import type { LocalProduct } from "@/data/catalog";
 
 export const STORE_CATEGORIES = ["الكل", "زيوت المحرك", "فلاتر الهواء", "فلاتر الزيت"] as const;
 
@@ -12,12 +13,12 @@ export function formatPrice(money: Money) {
   }).format(amount);
 }
 
-export function productMatchesCategory(product: Product, category: string) {
-  return category === "الكل" || product.productType === category || product.tags.includes(category);
+export function productMatchesCategory(product: LocalProduct, category: string) {
+  return category === "الكل" || product.category === category;
 }
 
-export function productSearchText(product: Product) {
-  return [product.title, product.description, product.productType, product.vendor, ...product.tags]
+export function productSearchText(product: LocalProduct) {
+  return [product.title, product.description, product.category, ...product.tags]
     .join(" ")
     .toLocaleLowerCase("ar");
 }

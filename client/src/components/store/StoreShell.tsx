@@ -83,7 +83,7 @@ export default function StoreShell({ children }: { children: ReactNode }) {
           </div>
           <div>
             <h3 className="mb-3 text-sm font-extrabold text-[#d9a553]">خدمة العملاء</h3>
-            <p className="text-sm leading-7 text-[#c8d3cf]">السلة والدفع الآمن وبيانات التوصيل متاحة خلال خطوات إتمام الطلب.</p>
+            <p className="text-sm leading-7 text-[#c8d3cf]">أضف المنتجات إلى السلة ثم أرسل تفاصيل طلبك وبيانات التوصيل عبر واتساب.</p>
           </div>
         </div>
         <div className="border-t border-white/10 py-5 text-center text-xs text-[#99aaa4]">

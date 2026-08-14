@@ -1,47 +1,64 @@
-import { trpc } from "@/lib/trpc";
 import { dispatchCartOrderToWhatsApp } from "@/lib/contact";
-import type { Cart } from "@shared/commerce/types";
-import {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { findLocalProduct } from "@/data/catalog";
+import type { Cart, CartItem } from "@shared/commerce/types";
+import { createContext, type ReactNode, useCallback, useContext, useMemo, useState } from "react";
 
-/**
- * Storefront cart context.
- *
- * - Talks ONLY to backend-agnostic `commerce.*` tRPC procedures.
- * - Persists the cart id in localStorage and rehydrates on mount.
- * - Exposes a tiny imperative surface to UI: addItem, updateQuantity,
- *   removeItem, openCart, sendOrderToWhatsApp. Everything is typed against
- *   `shared/commerce/types` — the Shopify backend is invisible.
- */
+const CART_STORAGE_KEY = "altawkeel:local-cart";
 
-const CART_STORAGE_KEY = "commerce:cart-id";
-
-function readStoredCartId(): string | null {
-  if (typeof window === "undefined") return null;
-  return window.localStorage.getItem(CART_STORAGE_KEY);
+function emptyCart(): Cart {
+  return {
+    id: "local-cart",
+    checkoutUrl: "",
+    items: [],
+    itemCount: 0,
+    subtotal: { amount: "0", currencyCode: "EGP" },
+    total: { amount: "0", currencyCode: "EGP" },
+  };
 }
 
-function writeStoredCartId(value: string | null) {
+function createLocalCart(items: CartItem[]): Cart {
+  const normalizedItems = items.map(item => ({
+    ...item,
+    lineTotal: { ...item.unitPrice, amount: String(Number(item.unitPrice.amount) * item.quantity) },
+  }));
+  const total = normalizedItems.reduce((sum, item) => sum + Number(item.lineTotal.amount), 0);
+
+  return {
+    id: "local-cart",
+    checkoutUrl: "",
+    items: normalizedItems,
+    itemCount: normalizedItems.reduce((sum, item) => sum + item.quantity, 0),
+    subtotal: { amount: String(total), currencyCode: "EGP" },
+    total: { amount: String(total), currencyCode: "EGP" },
+  };
+}
+
+function readLocalCart() {
+  if (typeof window === "undefined") return emptyCart();
+  try {
+    const saved = window.localStorage.getItem(CART_STORAGE_KEY);
+    if (!saved) return emptyCart();
+    const parsed = JSON.parse(saved) as Cart;
+    return Array.isArray(parsed.items) ? createLocalCart(parsed.items) : emptyCart();
+  } catch {
+    return emptyCart();
+  }
+}
+
+function persistLocalCart(cart: Cart) {
   if (typeof window === "undefined") return;
-  if (value) window.localStorage.setItem(CART_STORAGE_KEY, value);
+  if (cart.items.length) window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
   else window.localStorage.removeItem(CART_STORAGE_KEY);
 }
 
 type CartContextValue = {
-  cart: Cart | null;
+  cart: Cart;
   isOpen: boolean;
   loading: boolean;
   itemCount: number;
   openCart: () => void;
   closeCart: () => void;
-  addItem: (variantId: string, quantity?: number) => Promise<void>;
+  addItem: (productId: string, quantity?: number) => Promise<void>;
   updateQuantity: (lineId: string, quantity: number) => Promise<void>;
   removeItem: (lineId: string) => Promise<void>;
   clearCart: () => void;
@@ -51,115 +68,53 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [cartId, setCartId] = useState<string | null>(() => readStoredCartId());
-  const [cart, setCart] = useState<Cart | null>(null);
+  const [cart, setCart] = useState<Cart>(readLocalCart);
   const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const utils = trpc.useUtils();
-
-  // Re-hydrate cart on mount or whenever cartId changes.
-  useEffect(() => {
-    if (!cartId) {
-      setCart(null);
-      return;
-    }
-    let cancelled = false;
-    setLoading(true);
-    utils.commerce.cart.get
-      .fetch({ cartId })
-      .then(c => {
-        if (cancelled) return;
-        if (c) setCart(c);
-        else {
-          // Stored cart id no longer valid — drop it.
-          writeStoredCartId(null);
-          setCartId(null);
-        }
-      })
-      .catch(() => {
-        if (cancelled) return;
-        writeStoredCartId(null);
-        setCartId(null);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [cartId, utils.commerce.cart.get]);
-
-  const itemCount = cart?.itemCount ?? 0;
+  const updateCart = useCallback((items: CartItem[]) => {
+    const nextCart = createLocalCart(items);
+    setCart(nextCart);
+    persistLocalCart(nextCart);
+  }, []);
 
   const openCart = useCallback(() => setIsOpen(true), []);
   const closeCart = useCallback(() => setIsOpen(false), []);
 
-  const addItem = useCallback(
-    async (variantId: string, quantity: number = 1) => {
-      setLoading(true);
-      try {
-        if (!cartId || !cart) {
-          const created = await utils.client.commerce.cart.create.mutate({
-            lines: [{ variantId, quantity }],
-          });
-          setCart(created);
-          setCartId(created.id);
-          writeStoredCartId(created.id);
-        } else {
-          const updated = await utils.client.commerce.cart.addLines.mutate({
-            cartId,
-            lines: [{ variantId, quantity }],
-          });
-          setCart(updated);
-        }
-        setIsOpen(true);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [cart, cartId, utils.client]
-  );
+  const addItem = useCallback(async (productId: string, quantity: number = 1) => {
+    const product = findLocalProduct(productId);
+    if (!product || !product.available) return;
 
-  const updateQuantity = useCallback(
-    async (lineId: string, quantity: number) => {
-      if (!cartId) return;
-      setLoading(true);
-      try {
-        const updated = await utils.client.commerce.cart.updateLines.mutate({
-          cartId,
-          lines: [{ lineId, quantity }],
-        });
-        if (updated) setCart(updated);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [cartId, utils.client]
-  );
+    const currentItem = cart.items.find(item => item.variantId === product.id);
+    const items = currentItem
+      ? cart.items.map(item => item.variantId === product.id ? { ...item, quantity: item.quantity + quantity } : item)
+      : [...cart.items, {
+          lineId: product.id,
+          variantId: product.id,
+          productHandle: product.handle,
+          productTitle: product.title,
+          variantTitle: "Default Title",
+          image: product.image,
+          unitPrice: product.price,
+          quantity,
+          lineTotal: product.price,
+        }];
 
-  const removeItem = useCallback(
-    async (lineId: string) => {
-      if (!cartId) return;
-      setLoading(true);
-      try {
-        const updated = await utils.client.commerce.cart.removeLines.mutate({
-          cartId,
-          lineIds: [lineId],
-        });
-        setCart(updated);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [cartId, utils.client]
-  );
+    updateCart(items);
+    setIsOpen(true);
+  }, [cart.items, updateCart]);
 
-  const clearCart = useCallback(() => {
-    writeStoredCartId(null);
-    setCartId(null);
-    setCart(null);
-  }, []);
+  const updateQuantity = useCallback(async (lineId: string, quantity: number) => {
+    const items = quantity <= 0
+      ? cart.items.filter(item => item.lineId !== lineId)
+      : cart.items.map(item => item.lineId === lineId ? { ...item, quantity } : item);
+    updateCart(items);
+  }, [cart.items, updateCart]);
+
+  const removeItem = useCallback(async (lineId: string) => {
+    updateCart(cart.items.filter(item => item.lineId !== lineId));
+  }, [cart.items, updateCart]);
+
+  const clearCart = useCallback(() => updateCart([]), [updateCart]);
 
   const sendOrderToWhatsApp = useCallback(() => {
     dispatchCartOrderToWhatsApp(cart, {
@@ -169,34 +124,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   }, [cart, clearCart, closeCart]);
 
-  const value = useMemo<CartContextValue>(
-    () => ({
-      cart,
-      isOpen,
-      loading,
-      itemCount,
-      openCart,
-      closeCart,
-      addItem,
-      updateQuantity,
-      removeItem,
-      clearCart,
-      sendOrderToWhatsApp,
-    }),
-    [
-      cart,
-      isOpen,
-      loading,
-      itemCount,
-      openCart,
-      closeCart,
-      addItem,
-      updateQuantity,
-      removeItem,
-      clearCart,
-      sendOrderToWhatsApp,
-    ]
-  );
+  const value = useMemo<CartContextValue>(() => ({
+    cart,
+    isOpen,
+    loading: false,
+    itemCount: cart.itemCount,
+    openCart,
+    closeCart,
+    addItem,
+    updateQuantity,
+    removeItem,
+    clearCart,
+    sendOrderToWhatsApp,
+  }), [addItem, cart, clearCart, closeCart, isOpen, removeItem, sendOrderToWhatsApp, updateQuantity]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
