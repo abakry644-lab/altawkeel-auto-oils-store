@@ -1,20 +1,28 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import StoreShell from "@/components/store/StoreShell";
+import Admin from "@/pages/Admin";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import ProductDetail from "./pages/ProductDetail";
+import Shop from "./pages/Shop";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
-    <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
-      <Route component={NotFound} />
-    </Switch>
+    <StoreShell>
+      <Switch>
+        <Route path={"/"} component={Home} />
+        <Route path={"/shop"} component={Shop} />
+        <Route path={"/products/:handle"}>{params => <ProductDetail handle={params.handle} />}</Route>
+        <Route path={"/admin"} component={Admin} />
+        <Route path={"/404"} component={NotFound} />
+        <Route component={NotFound} />
+      </Switch>
+    </StoreShell>
   );
 }
 
