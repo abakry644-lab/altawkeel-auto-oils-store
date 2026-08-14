@@ -16,9 +16,6 @@ export default function StoreShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#fbfaf7] text-[#1c2421]" dir="rtl">
-      <div className="border-b border-[#e9e3d9] bg-[#163d36] px-5 py-2.5 text-center text-xs font-medium text-[#f8f4eb] sm:text-sm">
-        شحن مجاني للطلبات التي تتجاوز 500 جنيه — اختر ما يناسب سيارتك بثقة
-      </div>
       <header className="sticky top-0 z-40 border-b border-[#ebe6de]/90 bg-[#fbfaf7]/90 backdrop-blur-xl">
         <div className="container flex h-20 items-center justify-between gap-5">
           <Link href="/" className="group flex shrink-0 items-center gap-3" aria-label="العودة للرئيسية — التوكيل">
