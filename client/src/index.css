@@ -163,6 +163,55 @@ html { scroll-behavior: smooth; }
 
   .hero-product-frame { border-color: rgba(244, 199, 120, .45); }
 
+  .hero-tech-grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: .34;
+    background-image: linear-gradient(rgba(22, 61, 54, .055) 1px, transparent 1px), linear-gradient(90deg, rgba(22, 61, 54, .055) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: linear-gradient(90deg, transparent, black 24%, black 76%, transparent);
+  }
+
+  .hero-gauge-motif {
+    position: absolute;
+    top: -11rem;
+    left: -9rem;
+    height: 31rem;
+    width: 31rem;
+    pointer-events: none;
+    opacity: .46;
+    border-radius: 999px;
+    background: repeating-conic-gradient(from 210deg, rgba(180, 119, 44, .37) 0deg 1deg, transparent 1deg 7deg);
+    mask-image: radial-gradient(transparent 0 62%, #000 62.5% 66%, transparent 66.5%);
+  }
+
+  .hero-gauge-motif::after {
+    position: absolute;
+    top: 49%;
+    left: 49%;
+    height: 28%;
+    width: 2px;
+    border-radius: 999px;
+    background: linear-gradient(to bottom, rgba(180, 119, 44, .7), transparent);
+    content: "";
+    transform: rotate(128deg);
+    transform-origin: bottom center;
+  }
+
+  .hero-road-lines {
+    position: absolute;
+    right: -8rem;
+    bottom: -7rem;
+    height: 18rem;
+    width: 54rem;
+    pointer-events: none;
+    opacity: .28;
+    background: repeating-linear-gradient(135deg, transparent 0 32px, rgba(22, 61, 54, .32) 32px 34px, transparent 34px 66px);
+    mask-image: linear-gradient(to top, black, transparent 82%);
+    transform: skewX(-16deg);
+  }
+
   .offer-band::before {
     position: absolute;
     inset: 0;
@@ -176,6 +225,8 @@ html { scroll-behavior: smooth; }
     .brand-wordmark { animation: brand-glow 4.5s ease-in-out infinite; }
     .hero-aurora--gold { animation: aurora-gold 10s ease-in-out infinite alternate; }
     .hero-aurora--green { animation: aurora-green 12s ease-in-out infinite alternate; }
+    .hero-gauge-motif { animation: gauge-drift 24s ease-in-out infinite alternate; }
+    .hero-road-lines { animation: road-drift 18s ease-in-out infinite alternate; }
     .hero-product-frame { animation: frame-breathe 4s ease-in-out infinite; }
     .hero-product-image { animation: product-float 5.5s ease-in-out infinite; }
     .brand-pill { animation: subtle-shine 4.5s ease-in-out infinite; }
@@ -186,6 +237,8 @@ html { scroll-behavior: smooth; }
   @keyframes brand-glow { 50% { color: #b4772c; } }
   @keyframes aurora-gold { to { transform: translate(-3rem, 2rem) scale(1.18); } }
   @keyframes aurora-green { to { transform: translate(3rem, -2rem) scale(.9); } }
+  @keyframes gauge-drift { to { transform: rotate(5deg) translate(1.4rem, .8rem); } }
+  @keyframes road-drift { to { transform: skewX(-16deg) translateX(-2.5rem); } }
   @keyframes frame-breathe { 50% { transform: scale(1.025); opacity: .72; } }
   @keyframes product-float { 50% { transform: translateY(-8px) rotate(-.45deg); } }
   @keyframes subtle-shine { 50% { box-shadow: 0 0 0 5px rgba(196, 138, 53, .09); } }

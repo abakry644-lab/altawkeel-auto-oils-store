@@ -20,6 +20,9 @@ export default function Home() {
     <section className="relative overflow-hidden border-b border-[#e9e3d9] bg-[#f3f0e9]">
       <div className="hero-aurora hero-aurora--gold absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#d8b274]/25 blur-3xl" />
       <div className="hero-aurora hero-aurora--green absolute -bottom-36 left-[10%] h-80 w-80 rounded-full bg-[#2c6153]/15 blur-3xl" />
+      <div aria-hidden="true" className="hero-tech-grid" />
+      <div aria-hidden="true" className="hero-gauge-motif" />
+      <div aria-hidden="true" className="hero-road-lines" />
       <div className="container relative flex min-h-[460px] items-center justify-center py-16 sm:py-24 lg:py-28">
         <div className="mx-auto max-w-3xl text-center">
           <div className="brand-pill inline-flex items-center gap-2 rounded-full border border-[#dcccae] bg-[#fffaf0] px-3 py-1.5 text-xs font-extrabold text-[#9f6c27]"><Sparkles size={14} /> معيار التوكيل لسيارتك</div>
