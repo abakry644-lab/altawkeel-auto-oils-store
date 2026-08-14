@@ -1,9 +1,29 @@
 import { useCart } from "@/contexts/CartContext";
+import { type CustomerDetails, validateCustomerDetails } from "@/lib/contact";
 import { formatPrice } from "@/lib/store";
 import { ArrowLeft, MessageCircle, Minus, PackageOpen, Plus, Trash2, X } from "lucide-react";
+import { useState } from "react";
 
 export default function CartDrawer() {
   const { cart, closeCart, isOpen, loading, removeItem, updateQuantity, sendOrderToWhatsApp } = useCart();
+  const [customer, setCustomer] = useState<CustomerDetails>({ name: "", phone: "", address: "" });
+  const [errors, setErrors] = useState<Partial<CustomerDetails>>({});
+
+  function handleCustomerChange(field: keyof CustomerDetails, value: string) {
+    setCustomer(current => ({ ...current, [field]: value }));
+    setErrors(current => ({ ...current, [field]: "" }));
+  }
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const validationErrors = validateCustomerDetails(customer);
+    if (Object.keys(validationErrors).length) {
+      setErrors(validationErrors);
+      return;
+    }
+    sendOrderToWhatsApp(customer);
+  }
+
   if (!isOpen) return null;
 
   return (
@@ -32,7 +52,7 @@ export default function CartDrawer() {
                 ))}
               </div>
             </div>
-            <div className="border-t border-[#e7e1d8] bg-white px-6 py-5"><div className="mb-4 flex items-end justify-between"><span className="text-sm font-bold text-[#61726b]">الإجمالي</span><strong className="text-2xl font-extrabold text-[#163d36]">{formatPrice(cart.total)}</strong></div><button disabled={loading} onClick={sendOrderToWhatsApp} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 py-3.5 text-sm font-extrabold text-white shadow-[0_10px_20px_rgba(37,211,102,.25)] transition hover:bg-[#1fb95a] active:scale-[.97] disabled:opacity-60">إرسال الطلب عبر واتساب <ArrowLeft size={18} /></button><p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[11px] font-medium text-[#798780]"><MessageCircle size={15} className="text-[#25A856]" /> بعد فتح واتساب ستُفرغ السلة تلقائيًا لبدء طلب جديد.</p></div>
+            <form onSubmit={handleSubmit} className="border-t border-[#e7e1d8] bg-white px-6 py-5"><div className="mb-4 flex items-end justify-between"><span className="text-sm font-bold text-[#61726b]">الإجمالي</span><strong className="text-2xl font-extrabold text-[#163d36]">{formatPrice(cart.total)}</strong></div><div className="mb-5 grid gap-3"><p className="text-sm font-extrabold text-[#24443b]">بيانات التوصيل</p><label className="grid gap-1.5 text-xs font-bold text-[#61726b]">الاسم الكامل<input value={customer.name} onChange={event => handleCustomerChange("name", event.target.value)} autoComplete="name" aria-invalid={Boolean(errors.name)} className="h-10 rounded-xl border border-[#dfd6c9] bg-[#fffdf9] px-3 text-sm text-[#183c34] outline-none transition focus:border-[#bf8332]" placeholder="اكتب الاسم الكامل" /></label>{errors.name && <p className="-mt-2 text-[11px] font-medium text-[#b64a3d]">{errors.name}</p>}<label className="grid gap-1.5 text-xs font-bold text-[#61726b]">رقم الهاتف<input value={customer.phone} onChange={event => handleCustomerChange("phone", event.target.value)} type="tel" inputMode="tel" autoComplete="tel" dir="ltr" aria-invalid={Boolean(errors.phone)} className="h-10 rounded-xl border border-[#dfd6c9] bg-[#fffdf9] px-3 text-right text-sm text-[#183c34] outline-none transition focus:border-[#bf8332]" placeholder="01xxxxxxxxx" /></label>{errors.phone && <p className="-mt-2 text-[11px] font-medium text-[#b64a3d]">{errors.phone}</p>}<label className="grid gap-1.5 text-xs font-bold text-[#61726b]">العنوان التفصيلي<textarea value={customer.address} onChange={event => handleCustomerChange("address", event.target.value)} autoComplete="street-address" aria-invalid={Boolean(errors.address)} className="min-h-20 resize-none rounded-xl border border-[#dfd6c9] bg-[#fffdf9] px-3 py-2 text-sm text-[#183c34] outline-none transition focus:border-[#bf8332]" placeholder="المنطقة، الشارع، رقم العقار" /></label>{errors.address && <p className="-mt-2 text-[11px] font-medium text-[#b64a3d]">{errors.address}</p>}</div><button disabled={loading} type="submit" className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 py-3.5 text-sm font-extrabold text-white shadow-[0_10px_20px_rgba(37,211,102,.25)] transition hover:bg-[#1fb95a] active:scale-[.97] disabled:opacity-60">إرسال الطلب عبر واتساب <ArrowLeft size={18} /></button><p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[11px] font-medium text-[#798780]"><MessageCircle size={15} className="text-[#25A856]" /> بعد فتح واتساب ستُفرغ السلة تلقائيًا لبدء طلب جديد.</p></form>
           </>
         )}
       </aside>

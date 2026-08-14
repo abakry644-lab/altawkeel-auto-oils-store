@@ -1,4 +1,4 @@
-import { dispatchCartOrderToWhatsApp } from "@/lib/contact";
+import { dispatchCartOrderToWhatsApp, type CustomerDetails } from "@/lib/contact";
 import { findLocalProduct } from "@/data/catalog";
 import type { Cart, CartItem } from "@shared/commerce/types";
 import { createContext, type ReactNode, useCallback, useContext, useMemo, useState } from "react";
@@ -62,7 +62,7 @@ type CartContextValue = {
   updateQuantity: (lineId: string, quantity: number) => Promise<void>;
   removeItem: (lineId: string) => Promise<void>;
   clearCart: () => void;
-  sendOrderToWhatsApp: () => void;
+  sendOrderToWhatsApp: (customer: CustomerDetails) => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -116,8 +116,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = useCallback(() => updateCart([]), [updateCart]);
 
-  const sendOrderToWhatsApp = useCallback(() => {
-    dispatchCartOrderToWhatsApp(cart, {
+  const sendOrderToWhatsApp = useCallback((customer: CustomerDetails) => {
+    dispatchCartOrderToWhatsApp(cart, customer, {
       openUrl: url => window.open(url, "_blank", "noopener,noreferrer"),
       clearCart,
       closeCart,

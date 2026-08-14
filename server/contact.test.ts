@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Cart } from "../shared/commerce/types";
-import { WHATSAPP_NUMBER, createCartOrderMessage, createWhatsAppUrl, dispatchCartOrderToWhatsApp } from "../client/src/lib/contact";
+import { WHATSAPP_NUMBER, createCartOrderMessage, createWhatsAppUrl, dispatchCartOrderToWhatsApp, validateCustomerDetails } from "../client/src/lib/contact";
 
 describe("رابط التواصل عبر واتساب", () => {
   it("يربط بالرقم المعتمد مع رسالة عربية جاهزة", () => {
@@ -31,11 +31,21 @@ describe("رابط التواصل عبر واتساب", () => {
       }],
     };
 
-    const message = createCartOrderMessage(cart);
+    const message = createCartOrderMessage(cart, { name: "أحمد بكري", phone: "201099014725", address: "القاهرة، مدينة نصر" });
 
     expect(message).toContain("Castrol GTX");
     expect(message).toContain("الكمية: 2");
     expect(message).toContain("إجمالي الطلب:");
+    expect(message).toContain("أحمد بكري");
+  });
+
+  it("يتحقق من الاسم والهاتف والعنوان قبل إرسال الطلب", () => {
+    expect(validateCustomerDetails({ name: "أ", phone: "12", address: "شارع" })).toEqual({
+      name: "أدخل الاسم الكامل كما سيظهر في الطلب.",
+      phone: "أدخل رقم هاتف صحيحًا للتواصل.",
+      address: "أدخل عنوان التوصيل بالتفصيل.",
+    });
+    expect(validateCustomerDetails({ name: "أحمد بكري", phone: "201099014725", address: "القاهرة، مدينة نصر" })).toEqual({});
   });
 
   it("يفتح رسالة واتساب ثم يفرغ السلة ويغلقها بالترتيب", () => {
@@ -59,7 +69,7 @@ describe("رابط التواصل عبر واتساب", () => {
     };
     const calls: string[] = [];
 
-    const dispatched = dispatchCartOrderToWhatsApp(cart, {
+    const dispatched = dispatchCartOrderToWhatsApp(cart, { name: "أحمد بكري", phone: "201099014725", address: "القاهرة، مدينة نصر" }, {
       openUrl: url => calls.push(`open:${url}`),
       clearCart: () => calls.push("clear"),
       closeCart: () => calls.push("close"),
