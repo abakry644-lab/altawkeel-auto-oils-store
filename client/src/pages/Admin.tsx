@@ -1,6 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { startLogin } from "@/const";
-import { ArrowLeft, Boxes, ImagePlus, PackageCheck, Settings2, ShoppingCart, UploadCloud } from "lucide-react";
+import { ArrowLeft, Boxes, CreditCard, ImagePlus, PackageCheck, Settings2, ShoppingCart, UploadCloud } from "lucide-react";
 
 const shopifyAdminUrl = "https://admin.shopify.com/store/autozonshop-ke59zmg5-whisper-arrow-hqmm1rah";
 
@@ -12,5 +12,38 @@ export default function Admin() {
     { icon: ImagePlus, title: "صور المنتجات", text: "رفع صور واضحة وربطها بالمنتج مباشرة من لوحة الكتالوج." },
     { icon: PackageCheck, title: "الطلبات", text: "متابعة الطلبات وبيانات التسليم وحالات التجهيز من مكان واحد." },
   ];
-  return <div className="container py-12 sm:py-16"><section className="overflow-hidden rounded-[2rem] bg-[#163d36] px-7 py-10 text-[#f8f4eb] sm:px-11 sm:py-14"><p className="text-xs font-extrabold tracking-[.15em] text-[#e5b96e]">مركز إدارة أوتو زون</p><h1 className="mt-3 max-w-2xl text-3xl font-extrabold leading-tight sm:text-5xl">كل ما يلزم لإدارة متجر مرتب وواضح.</h1><p className="mt-5 max-w-xl text-sm leading-8 text-[#c7d1cd]">المتجر يستخدم لوحة إدارة Shopify للحفاظ على المنتجات والصور والطلبات في نظام تجارة موحّد وآمن، دون حاجة إلى معرفة تقنية.</p>{!loading && !isAuthenticated && <button onClick={startLogin} className="mt-8 rounded-xl bg-[#d9a553] px-5 py-3 text-sm font-extrabold text-[#173b33] transition hover:bg-[#ecc57e]">تسجيل دخول المدير</button>}{isAuthenticated && <div className="mt-8 inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-bold">مرحبًا {user?.name ?? "بك"} {isAdmin ? "— لديك صلاحية الإدارة." : "— ستحتاج لصلاحية المدير للوصول إلى الكتالوج."}</div>}</section><section className="mt-8 grid gap-5 md:grid-cols-3">{cards.map(card => <article key={card.title} className="rounded-3xl border border-[#e7dfd3] bg-white p-6"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#f3eee5] text-[#b4772c]"><card.icon size={21} /></span><h2 className="mt-5 text-lg font-extrabold text-[#214238]">{card.title}</h2><p className="mt-2 text-sm leading-7 text-[#6b7a74]">{card.text}</p></article>)}</section><section className="mt-8 grid gap-7 rounded-[2rem] border border-[#e7dfd3] bg-white p-7 lg:grid-cols-[1.2fr_.8fr] lg:p-10"><div><p className="text-xs font-extrabold tracking-[.14em] text-[#ad752c]">خطوات بسيطة</p><h2 className="mt-2 text-2xl font-extrabold text-[#173b33]">افتح إدارة المتجر وابدأ في دقائق.</h2><div className="mt-7 grid gap-4">{[["1","افتح لوحة الإدارة","بعد المطالبة بملكية المتجر، تظهر أدوات إدارة الكتالوج والطلبات."],["2","أضف أو حرر المنتج","ضع الاسم والسعر والتصنيف مثل زيوت المحرك أو فلاتر الهواء، ثم أضف الصورة."],["3","راجع حالة الطلب","ستصل معلومات العميل والتوصيل عند إتمام طلب جديد."]].map(([step, title, text]) => <div key={step} className="flex gap-4"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#163d36] text-xs font-extrabold text-white">{step}</span><div><h3 className="text-sm font-extrabold text-[#25463d]">{title}</h3><p className="mt-1 text-sm leading-6 text-[#718079]">{text}</p></div></div>)}</div></div><div className="rounded-3xl bg-[#f6f3ed] p-6"><UploadCloud size={28} className="text-[#b4772c]" /><h3 className="mt-5 text-lg font-extrabold text-[#23443a]">جاهز لتحديث كتالوجك؟</h3><p className="mt-2 text-sm leading-7 text-[#687871]">استخدم لوحة الإدارة لإضافة أو حذف أو تعديل المنتجات، الصور، المخزون والأسعار.</p><a href={shopifyAdminUrl} target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#163d36] px-4 py-3 text-sm font-extrabold text-white transition hover:bg-[#285c50]">فتح لوحة الكتالوج <ArrowLeft size={17} /></a><p className="mt-4 flex items-start gap-2 text-[11px] leading-5 text-[#8b7b68]"><Settings2 size={14} className="mt-0.5 shrink-0" />تحتاج هذه الخطوة إلى المطالبة بملكية متجر Shopify من الإعدادات أولًا.</p></div></section><section className="mt-8 rounded-3xl border border-[#e7dfd3] bg-[#fffdf9] p-6 text-sm text-[#61736b]"><div className="flex gap-3"><ShoppingCart className="shrink-0 text-[#b4772c]" size={21} /><p><strong className="text-[#26483e]">تجربة العميل:</strong> يستخدم العميل سلة المتجر، ثم ينتقل إلى صفحة إتمام الطلب لإدخال بيانات التوصيل ومراجعة الإجمالي وتأكيد الدفع.</p></div></section></div>;
+
+  return (
+    <div className="container py-12 sm:py-16">
+      <section className="overflow-hidden rounded-[2rem] bg-[#163d36] px-7 py-10 text-[#f8f4eb] sm:px-11 sm:py-14">
+        <p className="text-xs font-extrabold tracking-[.15em] text-[#e5b96e]">مركز إدارة أوتو زون</p>
+        <h1 className="mt-3 max-w-2xl text-3xl font-extrabold leading-tight sm:text-5xl">كل ما يلزم لإدارة متجر مرتب وواضح.</h1>
+        <p className="mt-5 max-w-xl text-sm leading-8 text-[#c7d1cd]">المتجر يستخدم لوحة إدارة Shopify للحفاظ على المنتجات والصور والطلبات في نظام تجارة موحّد وآمن، دون حاجة إلى معرفة تقنية.</p>
+        {!loading && !isAuthenticated && <button onClick={startLogin} className="mt-8 rounded-xl bg-[#d9a553] px-5 py-3 text-sm font-extrabold text-[#173b33] transition hover:bg-[#ecc57e]">تسجيل دخول المدير</button>}
+        {isAuthenticated && <div className="mt-8 inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-bold">مرحبًا {user?.name ?? "بك"} {isAdmin ? "— لديك صلاحية الإدارة." : "— ستحتاج لصلاحية المدير للوصول إلى الكتالوج."}</div>}
+      </section>
+
+      <section className="mt-8 grid gap-5 md:grid-cols-3">
+        {cards.map(card => <article key={card.title} className="rounded-3xl border border-[#e7dfd3] bg-white p-6"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#f3eee5] text-[#b4772c]"><card.icon size={21} /></span><h2 className="mt-5 text-lg font-extrabold text-[#214238]">{card.title}</h2><p className="mt-2 text-sm leading-7 text-[#6b7a74]">{card.text}</p></article>)}
+      </section>
+
+      <section className="mt-8 grid gap-7 rounded-[2rem] border border-[#e7dfd3] bg-white p-7 lg:grid-cols-[1.2fr_.8fr] lg:p-10">
+        <div>
+          <p className="text-xs font-extrabold tracking-[.14em] text-[#ad752c]">خطوات بسيطة</p>
+          <h2 className="mt-2 text-2xl font-extrabold text-[#173b33]">افتح إدارة المتجر وابدأ في دقائق.</h2>
+          <div className="mt-7 grid gap-4">
+            {[["1", "افتح لوحة الإدارة", "بعد المطالبة بملكية المتجر، تظهر أدوات إدارة الكتالوج والطلبات."], ["2", "أضف أو حرر المنتج", "ضع الاسم والسعر والتصنيف مثل زيوت المحرك أو فلاتر الهواء، ثم أضف الصورة."], ["3", "راجع حالة الطلب", "ستصل معلومات العميل والتوصيل عند إتمام طلب جديد."]].map(([step, title, text]) => <div key={step} className="flex gap-4"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#163d36] text-xs font-extrabold text-white">{step}</span><div><h3 className="text-sm font-extrabold text-[#25463d]">{title}</h3><p className="mt-1 text-sm leading-6 text-[#718079]">{text}</p></div></div>)}
+          </div>
+        </div>
+        <div className="rounded-3xl bg-[#f6f3ed] p-6"><UploadCloud size={28} className="text-[#b4772c]" /><h3 className="mt-5 text-lg font-extrabold text-[#23443a]">جاهز لتحديث كتالوجك؟</h3><p className="mt-2 text-sm leading-7 text-[#687871]">استخدم لوحة الإدارة لإضافة أو حذف أو تعديل المنتجات، الصور، المخزون والأسعار.</p><a href={shopifyAdminUrl} target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#163d36] px-4 py-3 text-sm font-extrabold text-white transition hover:bg-[#285c50]">فتح لوحة الكتالوج <ArrowLeft size={17} /></a><p className="mt-4 flex items-start gap-2 text-[11px] leading-5 text-[#8b7b68]"><Settings2 size={14} className="mt-0.5 shrink-0" />تحتاج هذه الخطوة إلى المطالبة بملكية متجر Shopify من الإعدادات أولًا.</p></div>
+      </section>
+
+      <section className="mt-8 rounded-[2rem] border border-[#dcccc0] bg-[#fffaf0] p-7 sm:p-9">
+        <div className="flex gap-4"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#f1e2c7] text-[#a86f28]"><CreditCard size={21} /></span><div><p className="text-xs font-extrabold tracking-[.14em] text-[#ad752c]">قبل استقبال أول طلب</p><h2 className="mt-1 text-xl font-extrabold text-[#24443a]">خطوتان لتفعيل الملكية والدفع</h2></div></div>
+        <ol className="mt-6 grid gap-4 text-sm leading-7 text-[#60736a] md:grid-cols-2"><li className="rounded-2xl bg-white/80 p-4"><strong className="block text-[#24443a]">1. طالب بملكية المتجر.</strong> افتح إعدادات هذا المشروع، ثم <b>التكاملات ← Shopify</b>، وأكمل المطالبة بملكية المتجر.</li><li className="rounded-2xl bg-white/80 p-4"><strong className="block text-[#24443a]">2. فعّل المدفوعات عند الجاهزية.</strong> من Shopify Admin انتقل إلى <b>الإعدادات ← المدفوعات</b>، ثم اختر مزود الدفع وأكمل بياناته قبل استقبال المدفوعات الفعلية.</li></ol>
+      </section>
+
+      <section className="mt-8 rounded-3xl border border-[#e7dfd3] bg-[#fffdf9] p-6 text-sm text-[#61736b]"><div className="flex gap-3"><ShoppingCart className="shrink-0 text-[#b4772c]" size={21} /><p><strong className="text-[#26483e]">تجربة العميل:</strong> يستخدم العميل سلة المتجر، ثم ينتقل إلى صفحة إتمام الطلب لإدخال بيانات التوصيل ومراجعة الإجمالي وتأكيد الدفع.</p></div></section>
+    </div>
+  );
 }
