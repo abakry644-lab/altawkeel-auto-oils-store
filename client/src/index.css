@@ -139,6 +139,58 @@ html { scroll-behavior: smooth; }
 }
 
 @layer components {
+  .brand-mark {
+    position: relative;
+    display: grid;
+    height: 2.85rem;
+    width: 2.85rem;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, #0f312a 0%, #23584d 60%, #c48a35 160%);
+    color: #f4c778;
+    box-shadow: 0 12px 24px rgba(22, 61, 54, .22);
+  }
+
+  .brand-mark__orbit {
+    position: absolute;
+    inset: .38rem;
+    border: 1px solid rgba(244, 199, 120, .55);
+    border-radius: 999px;
+  }
+
+  .brand-wordmark { letter-spacing: -.045em; }
+
+  .hero-product-frame { border-color: rgba(244, 199, 120, .45); }
+
+  .offer-band::before {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 22%, rgba(244, 199, 120, .12) 45%, transparent 68%);
+    content: "";
+    transform: translateX(-110%);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .brand-mark__orbit { animation: brand-orbit 9s linear infinite; }
+    .brand-wordmark { animation: brand-glow 4.5s ease-in-out infinite; }
+    .hero-aurora--gold { animation: aurora-gold 10s ease-in-out infinite alternate; }
+    .hero-aurora--green { animation: aurora-green 12s ease-in-out infinite alternate; }
+    .hero-product-frame { animation: frame-breathe 4s ease-in-out infinite; }
+    .hero-product-image { animation: product-float 5.5s ease-in-out infinite; }
+    .brand-pill { animation: subtle-shine 4.5s ease-in-out infinite; }
+    .offer-band::before { animation: band-sheen 6.5s ease-in-out infinite; }
+  }
+
+  @keyframes brand-orbit { to { transform: rotate(360deg); } }
+  @keyframes brand-glow { 50% { color: #b4772c; } }
+  @keyframes aurora-gold { to { transform: translate(-3rem, 2rem) scale(1.18); } }
+  @keyframes aurora-green { to { transform: translate(3rem, -2rem) scale(.9); } }
+  @keyframes frame-breathe { 50% { transform: scale(1.025); opacity: .72; } }
+  @keyframes product-float { 50% { transform: translateY(-8px) rotate(-.45deg); } }
+  @keyframes subtle-shine { 50% { box-shadow: 0 0 0 5px rgba(196, 138, 53, .09); } }
+  @keyframes band-sheen { 55%, 100% { transform: translateX(110%); } }
+
   /**
    * Custom container utility that centers content and adds responsive padding.
    *

@@ -1,6 +1,6 @@
 import { useCart } from "@/contexts/CartContext";
 import { Link } from "wouter";
-import { Menu, ShoppingBag, Sparkles, X } from "lucide-react";
+import { Gauge, Menu, ShoppingBag, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import CartDrawer from "./CartDrawer";
 import WhatsAppButton from "./WhatsAppButton";
@@ -21,13 +21,14 @@ export default function StoreShell({ children }: { children: ReactNode }) {
       </div>
       <header className="sticky top-0 z-40 border-b border-[#ebe6de]/90 bg-[#fbfaf7]/90 backdrop-blur-xl">
         <div className="container flex h-20 items-center justify-between gap-5">
-          <Link href="/" className="group flex shrink-0 items-center gap-3" aria-label="العودة للرئيسية">
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#163d36] text-[#d9a553] shadow-[0_10px_24px_rgba(22,61,54,.2)] transition-transform duration-200 group-hover:-rotate-6">
-              <Sparkles size={21} strokeWidth={2.2} />
+          <Link href="/" className="group flex shrink-0 items-center gap-3" aria-label="العودة للرئيسية — التوكيل">
+            <span className="brand-mark">
+              <span className="brand-mark__orbit" />
+              <Gauge className="relative z-10" size={22} strokeWidth={2.35} />
             </span>
             <span className="leading-tight">
-              <span className="block text-lg font-extrabold tracking-tight text-[#163d36]">أوتو زون</span>
-              <span className="block text-[10px] font-bold tracking-[.16em] text-[#957d5e]">زيوت وفلاتر</span>
+              <span className="brand-wordmark block text-lg font-extrabold tracking-tight text-[#163d36]">التوكيل</span>
+              <span className="block text-[10px] font-bold tracking-[.12em] text-[#957d5e]">زيوت وفلاتر السيارات</span>
             </span>
           </Link>
 
@@ -76,7 +77,7 @@ export default function StoreShell({ children }: { children: ReactNode }) {
       <footer className="mt-20 bg-[#163d36] text-[#e9e7df]">
         <div className="container grid gap-10 py-12 md:grid-cols-[1.25fr_.8fr_.8fr]">
           <div>
-            <div className="mb-3 text-2xl font-extrabold text-white">أوتو زون</div>
+            <div className="mb-3 text-2xl font-extrabold text-white">التوكيل</div>
             <p className="max-w-sm text-sm leading-7 text-[#c8d3cf]">وجهتك العملية لاختيار زيوت المحرك والفلاتر الأساسية بثقة ووضوح.</p>
           </div>
           <div>
@@ -88,7 +89,7 @@ export default function StoreShell({ children }: { children: ReactNode }) {
             <p className="text-sm leading-7 text-[#c8d3cf]">السلة والدفع الآمن وبيانات التوصيل متاحة خلال خطوات إتمام الطلب.</p>
           </div>
         </div>
-        <div className="border-t border-white/10 py-5 text-center text-xs text-[#99aaa4]">© {new Date().getFullYear()} أوتو زون — زيوت وفلاتر السيارات</div>
+        <div className="border-t border-white/10 py-5 text-center text-xs text-[#99aaa4]">© {new Date().getFullYear()} التوكيل — زيوت وفلاتر السيارات</div>
       </footer>
       <WhatsAppButton />
       <CartDrawer />
