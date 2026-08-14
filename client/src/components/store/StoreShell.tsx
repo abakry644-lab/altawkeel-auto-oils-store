@@ -11,7 +11,6 @@ export default function StoreShell({ children }: { children: ReactNode }) {
     { href: "/", label: "الرئيسية" },
     { href: "/shop", label: "المنتجات" },
     { href: "/#offers", label: "العروض" },
-    { href: "/admin", label: "الإدارة" },
   ];
 
   return (
