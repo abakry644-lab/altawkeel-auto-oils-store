@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Menu, ShoppingBag, Sparkles, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import CartDrawer from "./CartDrawer";
+import WhatsAppButton from "./WhatsAppButton";
 
 export default function StoreShell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -89,6 +90,7 @@ export default function StoreShell({ children }: { children: ReactNode }) {
         </div>
         <div className="border-t border-white/10 py-5 text-center text-xs text-[#99aaa4]">© {new Date().getFullYear()} أوتو زون — زيوت وفلاتر السيارات</div>
       </footer>
+      <WhatsAppButton />
       <CartDrawer />
     </div>
   );
