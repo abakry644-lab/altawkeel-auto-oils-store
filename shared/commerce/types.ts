@@ -1,15 +1,8 @@
 /**
- * Backend-agnostic commerce types.
+ * Shared local-store types.
  *
- * These shapes are the ONLY thing the frontend imports for commerce data.
- * They intentionally don't expose any Shopify-specific concepts (GraphQL
- * edges/nodes, GIDs, userErrors). The Shopify adapter in
- * `server/_core/shopify.ts` + `server/_core/shopifyNormalize.ts` are
- * responsible for normalizing into these shapes.
- *
- * Keep `Money.amount` as a `string` — it mirrors what every commerce backend
- * returns and avoids float-precision risk on totals. The UI converts to a
- * number only when calling `Intl.NumberFormat`.
+ * The catalog and browser-based cart use only these shapes. Keep money amounts
+ * as strings to avoid floating-point precision issues before display.
  */
 
 export type Money = {
@@ -22,54 +15,6 @@ export type Image = {
   altText: string | null;
   width?: number;
   height?: number;
-};
-
-export type ProductOption = {
-  name: string; // e.g. "Size"
-  values: string[]; // e.g. ["Small", "Medium", "Large"]
-};
-
-export type SelectedOption = {
-  name: string;
-  value: string;
-};
-
-export type ProductVariant = {
-  /** Opaque variant identifier — pass back to addItem / cart mutations as-is. */
-  id: string;
-  /** Human label such as "Medium / Charcoal" or "Default Title". */
-  title: string;
-  price: Money;
-  compareAtPrice: Money | null;
-  availableForSale: boolean;
-  /** Flat list of selected options — sized for variant pickers. */
-  selectedOptions: SelectedOption[];
-};
-
-export type Product = {
-  id: string;
-  /** URL-friendly slug used as the route param on PDP. */
-  handle: string;
-  title: string;
-  description: string;
-  descriptionHtml: string;
-  productType: string | null;
-  vendor: string | null;
-  tags: string[];
-  images: Image[];
-  /** Min / max across all variants — useful for "from $X" pricing. */
-  priceRange: { min: Money; max: Money };
-  /** Available option dimensions (e.g. Size, Color) for the variant picker. */
-  options: ProductOption[];
-  variants: ProductVariant[];
-};
-
-export type Collection = {
-  id: string;
-  handle: string;
-  title: string;
-  description: string;
-  image: Image | null;
 };
 
 export type CartItem = {
@@ -87,7 +32,7 @@ export type CartItem = {
 
 export type Cart = {
   id: string;
-  /** Already includes `channel=online_store` — open directly. */
+  /** Retained as an empty compatibility field while the cart remains local. */
   checkoutUrl: string;
   items: CartItem[];
   itemCount: number;

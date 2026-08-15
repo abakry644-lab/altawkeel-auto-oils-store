@@ -3,7 +3,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+}
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -96,7 +98,7 @@ html { scroll-behavior: smooth; }
   --muted: oklch(0.274 0.006 286.033);
   --muted-foreground: oklch(0.705 0.015 286.067);
   --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground:  oklch(0.92 0.005 65);
+  --accent-foreground: oklch(0.92 0.005 65);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(1 0 0 / 10%);
@@ -110,7 +112,7 @@ html { scroll-behavior: smooth; }
   --sidebar: oklch(0.21 0.006 285.885);
   --sidebar-foreground: oklch(0.85 0.005 65);
   --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground:  oklch(0.985 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.488 0.243 264.376);
 }
@@ -124,7 +126,9 @@ html { scroll-behavior: smooth; }
     margin: 0;
     font-family: "Cairo", ui-sans-serif, system-ui, sans-serif;
   }
-  a { text-decoration: none; }
+  a {
+    text-decoration: none;
+  }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
   [type="button"]:not(:disabled),
@@ -149,28 +153,40 @@ html { scroll-behavior: smooth; }
     border-radius: 1rem;
     background: linear-gradient(135deg, #0f312a 0%, #23584d 60%, #c48a35 160%);
     color: #f4c778;
-    box-shadow: 0 12px 24px rgba(22, 61, 54, .22);
+    box-shadow: 0 12px 24px rgba(22, 61, 54, 0.22);
   }
 
   .brand-mark__orbit {
     position: absolute;
-    inset: .38rem;
-    border: 1px solid rgba(244, 199, 120, .55);
+    inset: 0.38rem;
+    border: 1px solid rgba(244, 199, 120, 0.55);
     border-radius: 999px;
   }
 
-  .brand-wordmark { letter-spacing: -.045em; }
+  .brand-wordmark {
+    letter-spacing: -0.045em;
+  }
 
-  .hero-product-frame { border-color: rgba(244, 199, 120, .45); }
+  .hero-product-frame {
+    border-color: rgba(244, 199, 120, 0.45);
+  }
 
   .hero-tech-grid {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: .34;
-    background-image: linear-gradient(rgba(22, 61, 54, .055) 1px, transparent 1px), linear-gradient(90deg, rgba(22, 61, 54, .055) 1px, transparent 1px);
+    opacity: 0.34;
+    background-image:
+      linear-gradient(rgba(22, 61, 54, 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(22, 61, 54, 0.055) 1px, transparent 1px);
     background-size: 32px 32px;
-    mask-image: linear-gradient(90deg, transparent, black 24%, black 76%, transparent);
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      black 24%,
+      black 76%,
+      transparent
+    );
   }
 
   .hero-gauge-motif {
@@ -180,10 +196,18 @@ html { scroll-behavior: smooth; }
     height: 31rem;
     width: 31rem;
     pointer-events: none;
-    opacity: .46;
+    opacity: 0.46;
     border-radius: 999px;
-    background: repeating-conic-gradient(from 210deg, rgba(180, 119, 44, .37) 0deg 1deg, transparent 1deg 7deg);
-    mask-image: radial-gradient(transparent 0 62%, #000 62.5% 66%, transparent 66.5%);
+    background: repeating-conic-gradient(
+      from 210deg,
+      rgba(180, 119, 44, 0.37) 0deg 1deg,
+      transparent 1deg 7deg
+    );
+    mask-image: radial-gradient(
+      transparent 0 62%,
+      #000 62.5% 66%,
+      transparent 66.5%
+    );
   }
 
   .hero-gauge-motif::after {
@@ -193,7 +217,11 @@ html { scroll-behavior: smooth; }
     height: 28%;
     width: 2px;
     border-radius: 999px;
-    background: linear-gradient(to bottom, rgba(180, 119, 44, .7), transparent);
+    background: linear-gradient(
+      to bottom,
+      rgba(180, 119, 44, 0.7),
+      transparent
+    );
     content: "";
     transform: rotate(128deg);
     transform-origin: bottom center;
@@ -206,8 +234,13 @@ html { scroll-behavior: smooth; }
     height: 18rem;
     width: 54rem;
     pointer-events: none;
-    opacity: .28;
-    background: repeating-linear-gradient(135deg, transparent 0 32px, rgba(22, 61, 54, .32) 32px 34px, transparent 34px 66px);
+    opacity: 0.28;
+    background: repeating-linear-gradient(
+      135deg,
+      transparent 0 32px,
+      rgba(22, 61, 54, 0.32) 32px 34px,
+      transparent 34px 66px
+    );
     mask-image: linear-gradient(to top, black, transparent 82%);
     transform: skewX(-16deg);
   }
@@ -215,34 +248,101 @@ html { scroll-behavior: smooth; }
   .offer-band::before {
     position: absolute;
     inset: 0;
-    background: linear-gradient(105deg, transparent 22%, rgba(244, 199, 120, .12) 45%, transparent 68%);
+    background: linear-gradient(
+      105deg,
+      transparent 22%,
+      rgba(244, 199, 120, 0.12) 45%,
+      transparent 68%
+    );
     content: "";
     transform: translateX(-110%);
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .brand-mark__orbit { animation: brand-orbit 9s linear infinite; }
-    .brand-wordmark { animation: brand-glow 4.5s ease-in-out infinite; }
-    .hero-aurora--gold { animation: aurora-gold 10s ease-in-out infinite alternate; }
-    .hero-aurora--green { animation: aurora-green 12s ease-in-out infinite alternate; }
-    .hero-gauge-motif { animation: gauge-drift 24s ease-in-out infinite alternate; }
-    .hero-road-lines { animation: road-drift 18s ease-in-out infinite alternate; }
-    .hero-product-frame { animation: frame-breathe 4s ease-in-out infinite; }
-    .hero-product-image { animation: product-float 5.5s ease-in-out infinite; }
-    .brand-pill { animation: subtle-shine 4.5s ease-in-out infinite; }
-    .offer-band::before { animation: band-sheen 6.5s ease-in-out infinite; }
+    .brand-mark__orbit {
+      animation: brand-orbit 9s linear infinite;
+    }
+    .brand-wordmark {
+      animation: brand-glow 4.5s ease-in-out infinite;
+    }
+    .hero-aurora--gold {
+      animation: aurora-gold 10s ease-in-out infinite alternate;
+    }
+    .hero-aurora--green {
+      animation: aurora-green 12s ease-in-out infinite alternate;
+    }
+    .hero-gauge-motif {
+      animation: gauge-drift 24s ease-in-out infinite alternate;
+    }
+    .hero-road-lines {
+      animation: road-drift 18s ease-in-out infinite alternate;
+    }
+    .hero-product-frame {
+      animation: frame-breathe 4s ease-in-out infinite;
+    }
+    .hero-product-image {
+      animation: product-float 5.5s ease-in-out infinite;
+    }
+    .brand-pill {
+      animation: subtle-shine 4.5s ease-in-out infinite;
+    }
+    .offer-band::before {
+      animation: band-sheen 6.5s ease-in-out infinite;
+    }
   }
 
-  @keyframes brand-orbit { to { transform: rotate(360deg); } }
-  @keyframes brand-glow { 50% { color: #b4772c; } }
-  @keyframes aurora-gold { to { transform: translate(-3rem, 2rem) scale(1.18); } }
-  @keyframes aurora-green { to { transform: translate(3rem, -2rem) scale(.9); } }
-  @keyframes gauge-drift { to { transform: rotate(5deg) translate(1.4rem, .8rem); } }
-  @keyframes road-drift { to { transform: skewX(-16deg) translateX(-2.5rem); } }
-  @keyframes frame-breathe { 50% { transform: scale(1.025); opacity: .72; } }
-  @keyframes product-float { 50% { transform: translateY(-8px) rotate(-.45deg); } }
-  @keyframes subtle-shine { 50% { box-shadow: 0 0 0 5px rgba(196, 138, 53, .09); } }
-  @keyframes band-sheen { 55%, 100% { transform: translateX(110%); } }
+  @keyframes brand-orbit {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes brand-glow {
+    50% {
+      color: #b4772c;
+    }
+  }
+  @keyframes aurora-gold {
+    to {
+      transform: translate(-3rem, 2rem) scale(1.18);
+    }
+  }
+  @keyframes aurora-green {
+    to {
+      transform: translate(3rem, -2rem) scale(0.9);
+    }
+  }
+  @keyframes gauge-drift {
+    to {
+      transform: rotate(5deg) translate(1.4rem, 0.8rem);
+    }
+  }
+  @keyframes road-drift {
+    to {
+      transform: skewX(-16deg) translateX(-2.5rem);
+    }
+  }
+  @keyframes frame-breathe {
+    50% {
+      transform: scale(1.025);
+      opacity: 0.72;
+    }
+  }
+  @keyframes product-float {
+    50% {
+      transform: translateY(-8px) rotate(-0.45deg);
+    }
+  }
+  @keyframes subtle-shine {
+    50% {
+      box-shadow: 0 0 0 5px rgba(196, 138, 53, 0.09);
+    }
+  }
+  @keyframes band-sheen {
+    55%,
+    100% {
+      transform: translateX(110%);
+    }
+  }
 
   /**
    * Custom container utility that centers content and adds responsive padding.

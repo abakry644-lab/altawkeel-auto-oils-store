@@ -1,7 +1,12 @@
 import type { Money } from "@shared/commerce/types";
 import type { LocalProduct } from "@/data/catalog";
 
-export const STORE_CATEGORIES = ["الكل", "زيوت المحرك", "فلاتر الهواء", "فلاتر الزيت"] as const;
+export const STORE_CATEGORIES = [
+  "الكل",
+  "زيوت المحرك",
+  "فلاتر الهواء",
+  "فلاتر الزيت",
+] as const;
 
 export function formatPrice(money: Money) {
   const amount = Number(money.amount);
@@ -13,7 +18,10 @@ export function formatPrice(money: Money) {
   }).format(amount);
 }
 
-export function productMatchesCategory(product: LocalProduct, category: string) {
+export function productMatchesCategory(
+  product: LocalProduct,
+  category: string
+) {
   return category === "الكل" || product.category === category;
 }
 
