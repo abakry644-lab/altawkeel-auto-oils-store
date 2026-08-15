@@ -12,6 +12,8 @@ describe("تفاعل بطاقة المنتج", () => {
     expect(productCardSource).toContain("group-hover:scale-[1.075]");
     expect(productCardSource).toContain("group-hover:opacity-100");
     expect(productCardSource).toContain("motion-reduce:transition-none");
+    expect(productCardSource).toContain("touch-manipulation");
+    expect(productCardSource).toContain("group-active:scale-[1.035]");
+    expect(productCardSource).toContain("h-11 min-w-11");
   });
 });
-
