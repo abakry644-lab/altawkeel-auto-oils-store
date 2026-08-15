@@ -6,6 +6,7 @@ export const STORE_CATEGORIES = [
   "زيوت المحرك",
   "فلاتر الهواء",
   "فلاتر الزيت",
+  "سوائل التبريد",
 ] as const;
 
 export function formatPrice(money: Money) {

@@ -16,4 +16,14 @@ describe("الكتالوج المحلي", () => {
   it("يعثر على المنتج من المعرّف اليدوي", () => {
     expect(findLocalProduct("castrol-gtx")?.title).toBe("Castrol GTX");
   });
+
+  it("يعرض كولانت كالتكس ضمن سوائل التبريد بالسعر المحدد", () => {
+    const coolant = findLocalProduct("caltex-delo-xlc-coolant-5l");
+
+    expect(coolant).toMatchObject({
+      category: "سوائل التبريد",
+      price: { amount: "350", currencyCode: "EGP" },
+      available: true,
+    });
+  });
 });

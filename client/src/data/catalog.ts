@@ -4,7 +4,11 @@ export type LocalProduct = {
   id: string;
   handle: string;
   title: string;
-  category: "زيوت المحرك" | "فلاتر الهواء" | "فلاتر الزيت";
+  category:
+    | "زيوت المحرك"
+    | "فلاتر الهواء"
+    | "فلاتر الزيت"
+    | "سوائل التبريد";
   description: string;
   price: Money;
   image: Image;
@@ -41,6 +45,21 @@ export const LOCAL_PRODUCTS: LocalProduct[] = [
       altText: "عبوة زيت Mobil Super 4T",
     },
     tags: ["زيت محرك", "Mobil", "متوفر للطلب"],
+    available: true,
+  },
+  {
+    id: "caltex-delo-xlc-coolant-5l",
+    handle: "caltex-delo-xlc-coolant-5l",
+    title: "كولانت كالتكس Delo XLC — 5 لتر",
+    category: "سوائل التبريد",
+    description:
+      "ماء رادياتير كولانت بتركيز 50% وسعة 5 لترات، لحماية فائقة لأنظمة التبريد. المنتج من شركة كالتكس (النجمة)، ومناسب للاستخدام في الرادياتير وفق توصيات السيارة.",
+    price: { amount: "350", currencyCode: "EGP" },
+    image: {
+      url: "/manus-storage/caltex-delo-xlc-coolant-5l_86948463.jpg",
+      altText: "عبوة كولانت كالتكس Delo XLC سعة 5 لتر",
+    },
+    tags: ["كولانت", "ماء رادياتير", "تركيز 50%", "5 لتر", "كالتكس"],
     available: true,
   },
 ];
