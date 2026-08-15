@@ -2,27 +2,35 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import StoreShell from "@/components/store/StoreShell";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Router as WouterRouter, Switch } from "wouter";
+import { useHashLocation } from "wouter/use-hash-location";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import ProductDetail from "./pages/ProductDetail";
 import Shop from "./pages/Shop";
 
-function Router() {
+const isGitHubPages = import.meta.env.VITE_GITHUB_PAGES === "true";
+
+function StoreRouter() {
   // make sure to consider if you need authentication for certain routes
   return (
-    <StoreShell>
-      <Switch>
-        <Route path={"/"} component={Home} />
-        <Route path={"/shop"} component={Shop} />
-        <Route path={"/products/:handle"}>
-          {params => <ProductDetail handle={params.handle} />}
-        </Route>
-        <Route path={"/404"} component={NotFound} />
-        <Route component={NotFound} />
-      </Switch>
-    </StoreShell>
+    <WouterRouter
+      base={isGitHubPages ? "" : import.meta.env.BASE_URL}
+      hook={isGitHubPages ? useHashLocation : undefined}
+    >
+      <StoreShell>
+        <Switch>
+          <Route path={"/"} component={Home} />
+          <Route path={"/shop"} component={Shop} />
+          <Route path={"/products/:handle"}>
+            {params => <ProductDetail handle={params.handle} />}
+          </Route>
+          <Route path={"/404"} component={NotFound} />
+          <Route component={NotFound} />
+        </Switch>
+      </StoreShell>
+    </WouterRouter>
   );
 }
 
@@ -40,7 +48,7 @@ function App() {
       >
         <TooltipProvider>
           <Toaster />
-          <Router />
+          <StoreRouter />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
