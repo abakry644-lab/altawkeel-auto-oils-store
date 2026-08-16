@@ -12,8 +12,8 @@ describe("رابط التواصل عبر واتساب", () => {
   it("يربط بالرقم المعتمد مع رسالة عربية جاهزة", () => {
     const url = createWhatsAppUrl();
 
-    expect(WHATSAPP_NUMBER).toBe("201099014725");
-    expect(url).toContain("https://wa.me/201099014725");
+    expect(WHATSAPP_NUMBER).toBe("201004900814");
+    expect(url).toContain("https://wa.me/201004900814");
     expect(decodeURIComponent(url)).toContain(
       "مرحبًا، لدي استفسار عن زيوت وفلاتر السيارات."
     );
@@ -108,7 +108,7 @@ describe("رابط التواصل عبر واتساب", () => {
     );
 
     expect(dispatched).toBe(true);
-    expect(calls[0]).toContain("https://wa.me/201099014725");
+    expect(calls[0]).toContain("https://wa.me/201004900814");
     expect(calls.slice(1)).toEqual(["clear", "close"]);
   });
 });
