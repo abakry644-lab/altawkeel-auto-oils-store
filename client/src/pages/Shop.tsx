@@ -1,5 +1,5 @@
 import ProductCard from "@/components/store/ProductCard";
-import { LOCAL_PRODUCTS } from "@/data/catalog";
+import { useCatalogProducts } from "@/hooks/useCatalogProducts";
 import {
   STORE_CATEGORIES,
   productMatchesCategory,
@@ -17,6 +17,7 @@ function startingCategory() {
 }
 
 export default function Shop() {
+  const { products } = useCatalogProducts();
   const [location] = useLocation();
   const [category, setCategory] = useState(startingCategory);
   const [term, setTerm] = useState("");
@@ -33,19 +34,19 @@ export default function Shop() {
       : category;
   const results = useMemo(
     () =>
-      LOCAL_PRODUCTS.filter(product =>
+      products.filter(product =>
         productMatchesCategory(product, selectedCategory)
       ).filter(product =>
         productSearchText(product).includes(term.toLocaleLowerCase("ar"))
       ),
-    [selectedCategory, term]
+    [products, selectedCategory, term]
   );
 
   return (
     <div className="container py-12 sm:py-16">
       <div className="max-w-2xl">
         <p className="text-xs font-extrabold tracking-[.16em] text-[#af762d]">
-          كتالوج محلي قابل للتعديل
+          كتالوج متجدد
         </p>
         <h1 className="mt-3 text-4xl font-extrabold tracking-tight text-[#173b33] sm:text-5xl">
           المنتجات

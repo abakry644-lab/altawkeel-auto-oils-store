@@ -7,6 +7,7 @@ import { useHashLocation } from "wouter/use-hash-location";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import AdminProducts from "./pages/AdminProducts";
 import ProductDetail from "./pages/ProductDetail";
 import Shop from "./pages/Shop";
 
@@ -19,8 +20,11 @@ function StoreRouter() {
       base={isGitHubPages ? "" : import.meta.env.BASE_URL}
       hook={isGitHubPages ? useHashLocation : undefined}
     >
-      <StoreShell>
-        <Switch>
+      <Switch>
+        <Route path="/admin" component={AdminProducts} />
+        <Route>
+          <StoreShell>
+            <Switch>
           <Route path={"/"} component={Home} />
           <Route path={"/shop"} component={Shop} />
           <Route path={"/products/:handle"}>
@@ -28,8 +32,10 @@ function StoreRouter() {
           </Route>
           <Route path={"/404"} component={NotFound} />
           <Route component={NotFound} />
-        </Switch>
-      </StoreShell>
+            </Switch>
+          </StoreShell>
+        </Route>
+      </Switch>
     </WouterRouter>
   );
 }

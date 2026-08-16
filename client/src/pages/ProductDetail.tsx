@@ -1,6 +1,6 @@
 import ProductCard from "@/components/store/ProductCard";
 import { useCart } from "@/contexts/CartContext";
-import { LOCAL_PRODUCTS, findLocalProduct } from "@/data/catalog";
+import { useCatalogProducts } from "@/hooks/useCatalogProducts";
 import { formatPrice } from "@/lib/store";
 import {
   ArrowRight,
@@ -13,7 +13,8 @@ import { Link } from "wouter";
 
 export default function ProductDetail({ handle }: { handle: string }) {
   const { addItem, loading } = useCart();
-  const product = findLocalProduct(handle);
+  const { products } = useCatalogProducts();
+  const product = products.find(item => item.handle === handle);
   if (!product)
     return (
       <div className="container py-24 text-center">
@@ -28,7 +29,7 @@ export default function ProductDetail({ handle }: { handle: string }) {
         </Link>
       </div>
     );
-  const related = LOCAL_PRODUCTS.filter(
+  const related = products.filter(
     item => item.handle !== product.handle && item.category === product.category
   ).slice(0, 3);
   return (
@@ -67,7 +68,7 @@ export default function ProductDetail({ handle }: { handle: string }) {
           </div>
           <button
             disabled={!product.available || loading}
-            onClick={() => addItem(product.id, 1)}
+            onClick={() => addItem(product, 1)}
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#bf8332] px-5 py-4 text-sm font-extrabold text-white shadow-[0_12px_24px_rgba(191,131,50,.22)] transition hover:bg-[#a87028] active:scale-[.97] disabled:opacity-50"
           >
             <ShoppingBag size={18} />{" "}

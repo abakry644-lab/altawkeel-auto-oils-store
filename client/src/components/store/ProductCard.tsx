@@ -1,10 +1,10 @@
 import { useCart } from "@/contexts/CartContext";
 import { formatPrice } from "@/lib/store";
-import type { LocalProduct } from "@/data/catalog";
+import type { CatalogProduct } from "@shared/catalog";
 import { ArrowLeft, ShoppingBag } from "lucide-react";
 import { Link } from "wouter";
 
-export default function ProductCard({ product }: { product: LocalProduct }) {
+export default function ProductCard({ product }: { product: CatalogProduct }) {
   const { addItem, loading } = useCart();
 
   return (
@@ -39,7 +39,7 @@ export default function ProductCard({ product }: { product: LocalProduct }) {
           </strong>
           <button
             disabled={!product.available || loading}
-            onClick={() => addItem(product.id, 1)}
+            onClick={() => addItem(product, 1)}
             className="inline-flex h-11 min-w-11 touch-manipulation items-center justify-center gap-1.5 rounded-xl bg-[#163d36] px-3.5 text-xs font-extrabold text-white shadow-sm transition-[transform,background-color,box-shadow] duration-200 hover:bg-[#285c50] group-hover:-translate-y-0.5 group-hover:shadow-md active:scale-95 active:bg-[#0f2c27] disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transform-none motion-reduce:transition-none"
           >
             <ShoppingBag size={15} /> أضف

@@ -1,6 +1,13 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import type { CatalogProduct } from "../shared/catalog";
+import {
+  catalogProducts,
+  type CatalogProductRow,
+  type InsertCatalogProduct,
+  InsertUser,
+  users,
+} from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -93,4 +100,106 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+function parseTags(value: string): string[] {
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed)
+      ? parsed.filter((tag): tag is string => typeof tag === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function toCatalogProduct(row: CatalogProductRow): CatalogProduct {
+  return {
+    id: row.id,
+    handle: row.handle,
+    title: row.title,
+    category: row.category,
+    description: row.description,
+    price: { amount: row.price, currencyCode: "EGP" },
+    image: {
+      url: row.imageUrl,
+      altText: row.imageAltText ?? row.title,
+    },
+    tags: parseTags(row.tagsJson),
+    available: row.available === 1,
+  };
+}
+
+export type CatalogProductWrite = Omit<CatalogProduct, "id">;
+
+function toCatalogValues(
+  product: CatalogProductWrite
+): Omit<InsertCatalogProduct, "id"> {
+  return {
+    handle: product.handle,
+    title: product.title,
+    category: product.category,
+    description: product.description,
+    price: product.price.amount,
+    imageUrl: product.image.url,
+    imageAltText: product.image.altText,
+    tagsJson: JSON.stringify(product.tags),
+    available: product.available ? 1 : 0,
+  };
+}
+
+export async function listCatalogProducts(): Promise<CatalogProduct[]> {
+  const db = await getDb();
+  if (!db) throw new Error("قاعدة بيانات الكتالوج غير متاحة حاليًا.");
+
+  const rows = await db.select().from(catalogProducts);
+  return rows.map(toCatalogProduct);
+}
+
+export async function getCatalogProductByHandle(handle: string) {
+  const db = await getDb();
+  if (!db) throw new Error("قاعدة بيانات الكتالوج غير متاحة حاليًا.");
+
+  const rows = await db
+    .select()
+    .from(catalogProducts)
+    .where(eq(catalogProducts.handle, handle))
+    .limit(1);
+  return rows[0] ? toCatalogProduct(rows[0]) : undefined;
+}
+
+export async function createCatalogProduct(
+  id: string,
+  product: CatalogProductWrite
+) {
+  const db = await getDb();
+  if (!db) throw new Error("قاعدة بيانات الكتالوج غير متاحة حاليًا.");
+
+  await db.insert(catalogProducts).values({ id, ...toCatalogValues(product) });
+  return getCatalogProductByHandle(product.handle);
+}
+
+export async function updateCatalogProduct(
+  id: string,
+  product: CatalogProductWrite
+) {
+  const db = await getDb();
+  if (!db) throw new Error("قاعدة بيانات الكتالوج غير متاحة حاليًا.");
+
+  await db
+    .update(catalogProducts)
+    .set(toCatalogValues(product))
+    .where(eq(catalogProducts.id, id));
+
+  const rows = await db
+    .select()
+    .from(catalogProducts)
+    .where(eq(catalogProducts.id, id))
+    .limit(1);
+  return rows[0] ? toCatalogProduct(rows[0]) : undefined;
+}
+
+export async function deleteCatalogProduct(id: string) {
+  const db = await getDb();
+  if (!db) throw new Error("قاعدة بيانات الكتالوج غير متاحة حاليًا.");
+
+  await db.delete(catalogProducts).where(eq(catalogProducts.id, id));
+}

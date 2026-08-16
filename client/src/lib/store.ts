@@ -1,5 +1,5 @@
 import type { Money } from "@shared/commerce/types";
-import type { LocalProduct } from "@/data/catalog";
+import type { CatalogProduct } from "@shared/catalog";
 
 export const STORE_CATEGORIES = [
   "الكل",
@@ -20,13 +20,13 @@ export function formatPrice(money: Money) {
 }
 
 export function productMatchesCategory(
-  product: LocalProduct,
+  product: CatalogProduct,
   category: string
 ) {
   return category === "الكل" || product.category === category;
 }
 
-export function productSearchText(product: LocalProduct) {
+export function productSearchText(product: CatalogProduct) {
   return [product.title, product.description, product.category, ...product.tags]
     .join(" ")
     .toLocaleLowerCase("ar");

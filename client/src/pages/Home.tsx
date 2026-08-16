@@ -1,17 +1,19 @@
 import ProductCard from "@/components/store/ProductCard";
-import { LOCAL_PRODUCTS } from "@/data/catalog";
+import { useCatalogProducts } from "@/hooks/useCatalogProducts";
 import {
   ArrowLeft,
   CheckCircle2,
   Droplets,
   ShieldCheck,
   SlidersHorizontal,
+  Snowflake,
   Sparkles,
   Truck,
 } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Home() {
+  const { products } = useCatalogProducts();
   const categories = [
     [
       "زيوت المحرك",
@@ -30,6 +32,12 @@ export default function Home() {
       "لصيانة منتظمة واهتمام أدق بالتفاصيل.",
       ShieldCheck,
       "/shop?category=فلاتر%20الزيت",
+    ],
+    [
+      "سوائل التبريد",
+      "حماية مدروسة لنظام تبريد سيارتك.",
+      Snowflake,
+      "/shop?category=سوائل%20التبريد",
     ],
   ] as const;
   const promises = [
@@ -120,7 +128,7 @@ export default function Home() {
             عرض الكل <ArrowLeft size={16} />
           </Link>
         </div>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {categories.map(([title, description, Icon, href]) => (
             <Link
               key={title}
@@ -185,15 +193,15 @@ export default function Home() {
             كل المنتجات <ArrowLeft size={16} />
           </Link>
         </div>
-        {LOCAL_PRODUCTS.length ? (
+        {products.length ? (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {LOCAL_PRODUCTS.slice(0, 3).map(product => (
+            {products.slice(0, 3).map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         ) : (
           <div className="rounded-3xl border border-dashed border-[#d9d0c1] bg-[#fffdf9] p-10 text-center text-sm text-[#718079]">
-            أضف المنتجات إلى ملف الكتالوج المحلي لبدء العرض.
+            أضف منتجك الأول من لوحة الإدارة لبدء العرض.
           </div>
         )}
       </section>

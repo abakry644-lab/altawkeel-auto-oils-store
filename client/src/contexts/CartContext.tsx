@@ -2,7 +2,7 @@ import {
   dispatchCartOrderToWhatsApp,
   type CustomerDetails,
 } from "@/lib/contact";
-import { findLocalProduct } from "@/data/catalog";
+import type { CatalogProduct } from "@shared/catalog";
 import type { Cart, CartItem } from "@shared/commerce/types";
 import {
   createContext,
@@ -77,7 +77,7 @@ type CartContextValue = {
   itemCount: number;
   openCart: () => void;
   closeCart: () => void;
-  addItem: (productId: string, quantity?: number) => Promise<void>;
+  addItem: (product: CatalogProduct, quantity?: number) => Promise<void>;
   updateQuantity: (lineId: string, quantity: number) => Promise<void>;
   removeItem: (lineId: string) => Promise<void>;
   clearCart: () => void;
@@ -100,9 +100,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const closeCart = useCallback(() => setIsOpen(false), []);
 
   const addItem = useCallback(
-    async (productId: string, quantity: number = 1) => {
-      const product = findLocalProduct(productId);
-      if (!product || !product.available) return;
+    async (product: CatalogProduct, quantity: number = 1) => {
+      if (!product.available) return;
 
       const currentItem = cart.items.find(
         item => item.variantId === product.id

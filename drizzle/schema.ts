@@ -1,4 +1,5 @@
 import {
+  decimal,
   int,
   mysqlEnum,
   mysqlTable,
@@ -32,4 +33,20 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+export const catalogProducts = mysqlTable("catalog_products", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  handle: varchar("handle", { length: 160 }).notNull().unique(),
+  title: varchar("title", { length: 255 }).notNull(),
+  category: varchar("category", { length: 100 }).notNull(),
+  description: text("description").notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  imageUrl: text("imageUrl").notNull(),
+  imageAltText: varchar("imageAltText", { length: 255 }),
+  tagsJson: text("tagsJson").notNull(),
+  available: int("available").notNull().default(1),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CatalogProductRow = typeof catalogProducts.$inferSelect;
+export type InsertCatalogProduct = typeof catalogProducts.$inferInsert;
