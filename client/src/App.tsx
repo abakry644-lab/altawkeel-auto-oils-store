@@ -1,6 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import StoreShell from "@/components/store/StoreShell";
+import BrandLoadingScreen from "@/components/store/BrandLoadingScreen";
 import NotFound from "@/pages/NotFound";
 import { Route, Router as WouterRouter, Switch } from "wouter";
 import { useHashLocation } from "wouter/use-hash-location";
@@ -54,6 +55,7 @@ function App() {
       >
         <TooltipProvider>
           <Toaster />
+          <BrandLoadingScreen />
           <StoreRouter />
         </TooltipProvider>
       </ThemeProvider>
