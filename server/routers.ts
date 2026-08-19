@@ -1,8 +1,11 @@
-import { COOKIE_NAME } from "@shared/const";
-import { PRODUCT_CATEGORIES } from "@shared/catalog";
+import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
+import { normalizeProductHandle, PRODUCT_CATEGORIES } from "@shared/catalog";
 import { nanoid } from "nanoid";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { ENV } from "./_core/env";
+import { isRailwayAdminPasswordValid } from "./_core/railwayAdmin";
 import { systemRouter } from "./_core/systemRouter";
 import {
   createCatalogProduct,
@@ -10,23 +13,30 @@ import {
   getCatalogProductByHandle,
   listCatalogProducts,
   updateCatalogProduct,
+  upsertUser,
 } from "./db";
 import { storagePut } from "./storage";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
+import { sdk } from "./_core/sdk";
 
 const productInput = z.object({
   handle: z
     .string()
     .trim()
-    .min(3, "استخدم رابطًا مختصرًا من 3 أحرف على الأقل.")
-    .max(160)
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "استخدم أحرفًا إنجليزية صغيرة وأرقامًا وشرطة فقط في رابط المنتج."
+    .transform(normalizeProductHandle)
+    .pipe(
+      z
+        .string()
+        .min(3, "استخدم رابطًا مختصرًا من 3 أحرف على الأقل.")
+        .max(160)
+        .regex(
+          /^[a-zA-Z0-9\u0600-\u06FF\u0750-\u077F]+(?:-[a-zA-Z0-9\u0600-\u06FF\u0750-\u077F]+)*$/,
+          "استخدم حروفًا أو أرقامًا مفصولة بشرطة في رابط المنتج."
+        )
     ),
   title: z.string().trim().min(2).max(255),
   category: z.enum(PRODUCT_CATEGORIES),
-  description: z.string().trim().min(10).max(5000),
+  description: z.string().trim().min(3, "اكتب وصفًا من 3 أحرف على الأقل.").max(5000),
   price: z.coerce.number().positive().max(999999),
   imageUrl: z.string().trim().min(1).max(2000),
   imageAltText: z.string().trim().max(255).optional(),
@@ -45,6 +55,31 @@ export const appRouter = router({
   system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
+    railwayLogin: publicProcedure
+      .input(z.object({ password: z.string().min(1).max(256) }))
+      .mutation(async ({ input, ctx }) => {
+        if (!isRailwayAdminPasswordValid(input.password) || !ENV.ownerOpenId) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "بيانات الدخول غير صحيحة." });
+        }
+
+        await upsertUser({
+          openId: ENV.ownerOpenId,
+          name: process.env.OWNER_NAME ?? "مدير متجر التوكيل",
+          email: process.env.OWNER_EMAIL ?? null,
+          loginMethod: "railway-password",
+          lastSignedIn: new Date(),
+        });
+
+        const sessionToken = await sdk.createSessionToken(ENV.ownerOpenId, {
+          name: process.env.OWNER_NAME ?? "مدير متجر التوكيل",
+          expiresInMs: ONE_YEAR_MS,
+        });
+        ctx.res.cookie(COOKIE_NAME, sessionToken, {
+          ...getSessionCookieOptions(ctx.req),
+          maxAge: ONE_YEAR_MS,
+        });
+        return { success: true } as const;
+      }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });

@@ -1,16 +1,17 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import BrandLogo from "@/components/store/BrandLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { startLogin } from "@/const";
 import { useCatalogProducts } from "@/hooks/useCatalogProducts";
 import { trpc } from "@/lib/trpc";
-import { PRODUCT_CATEGORIES, type CatalogProduct } from "@shared/catalog";
+import { normalizeProductHandle, PRODUCT_CATEGORIES, type CatalogProduct } from "@shared/catalog";
 import {
   ArrowRight,
   CheckCircle2,
   ImageUp,
+  KeyRound,
   Loader2,
   LogIn,
   LogOut,
@@ -48,6 +49,21 @@ const emptyForm = (): ProductForm => ({
   available: true,
 });
 
+function getAdminFormErrorMessage(error: unknown): string {
+  const raw = error instanceof Error ? error.message : "";
+  try {
+    const payload = JSON.parse(raw);
+    const issue = Array.isArray(payload) ? payload[0] : payload?.zodError?.issues?.[0];
+    if (issue?.path?.includes("description")) return "اكتب وصفًا من 3 أحرف على الأقل.";
+    if (issue?.path?.includes("handle")) return "اكتب رابطًا صالحًا أو اتركه فارغًا ليُنشأ تلقائيًا.";
+    if (typeof issue?.message === "string" && issue.message.length < 160) return issue.message;
+  } catch {
+    // Keep the generic Arabic message below for non-JSON errors.
+  }
+  if (raw.includes("رابط المنتج مستخدم")) return raw;
+  return "تعذر حفظ المنتج. راجع الحقول المطلوبة وحاول مرة أخرى.";
+}
+
 function productToForm(product: CatalogProduct): ProductForm {
   return {
     handle: product.handle,
@@ -60,6 +76,47 @@ function productToForm(product: CatalogProduct): ProductForm {
     tags: product.tags.join("، "),
     available: product.available,
   };
+}
+
+function RailwayAdminLogin() {
+  const [password, setPassword] = useState("");
+  const utils = trpc.useUtils();
+  const loginMutation = trpc.auth.railwayLogin.useMutation({
+    onSuccess: async () => {
+      setPassword("");
+      await utils.auth.me.invalidate();
+      toast.success("تم تسجيل الدخول إلى لوحة الإدارة.");
+    },
+    onError: error => toast.error(error.message || "تعذر تسجيل الدخول.") ,
+  });
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!password) {
+      toast.error("أدخل كلمة مرور الإدارة.");
+      return;
+    }
+    await loginMutation.mutateAsync({ password });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-3 text-right" dir="rtl">
+      <Label htmlFor="railway-admin-password">كلمة مرور الإدارة</Label>
+      <Input
+        id="railway-admin-password"
+        type="password"
+        value={password}
+        onChange={event => setPassword(event.target.value)}
+        autoComplete="current-password"
+        placeholder="أدخل كلمة المرور"
+        required
+      />
+      <Button type="submit" disabled={loginMutation.isPending} className="w-full bg-[var(--brand-deep)] hover:bg-[var(--brand-forest)]">
+        {loginMutation.isPending ? <Loader2 className="animate-spin" size={16} /> : <KeyRound size={16} />}
+        {loginMutation.isPending ? "جارٍ التحقق…" : "دخول لوحة الإدارة"}
+      </Button>
+    </form>
+  );
 }
 
 function AdminProductsLive() {
@@ -124,12 +181,23 @@ function AdminProductsLive() {
       toast.error("أضف صورة للمنتج أو ارفعها من جهازك.");
       return;
     }
+    const description = form.description.trim();
+    if (description.length < 3) {
+      toast.error("اكتب وصفًا من 3 أحرف على الأقل.");
+      return;
+    }
+
+    const normalizedHandle = normalizeProductHandle(form.handle || form.title);
+    if (normalizedHandle.length < 3) {
+      toast.error("اكتب اسم المنتج أو رابطًا صالحًا من 3 أحرف على الأقل.");
+      return;
+    }
 
     const product = {
-      handle: form.handle.trim().toLowerCase(),
+      handle: normalizedHandle,
       title: form.title.trim(),
       category: form.category,
-      description: form.description.trim(),
+      description,
       price,
       imageUrl: form.imageUrl.trim(),
       imageAltText: form.imageAltText.trim() || undefined,
@@ -144,7 +212,7 @@ function AdminProductsLive() {
       if (editingId) await updateMutation.mutateAsync({ id: editingId, product });
       else await createMutation.mutateAsync(product);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "تعذر حفظ المنتج.");
+      toast.error(getAdminFormErrorMessage(error));
     }
   };
 
@@ -174,14 +242,14 @@ function AdminProductsLive() {
         base64: dataUrl.split(",")[1] ?? "",
       });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "تعذر رفع الصورة.");
+      toast.error(getAdminFormErrorMessage(error));
     } finally {
       event.target.value = "";
     }
   };
 
   if (authLoading) {
-    return <div className="grid min-h-screen place-items-center"><Loader2 className="animate-spin text-[#163d36]" /></div>;
+    return <div className="grid min-h-screen place-items-center"><Loader2 className="animate-spin text-[var(--brand-deep)]" /></div>;
   }
 
   if (!user) {
@@ -190,7 +258,7 @@ function AdminProductsLive() {
         icon={<LogIn size={26} />}
         title="سجّل الدخول لفتح لوحة الإدارة"
         text="لوحة المنتجات محمية بحساب المالك. سجّل دخولك أولًا للمتابعة."
-        action={<Button onClick={startLogin} className="bg-[#163d36] hover:bg-[#285c50]"><LogIn size={16} /> تسجيل الدخول</Button>}
+        action={<RailwayAdminLogin />}
       />
     );
   }
@@ -200,10 +268,10 @@ function AdminProductsLive() {
   }
 
   return (
-    <main dir="rtl" className="min-h-screen bg-[#f6f3ee] text-[#183c34]">
-      <header className="border-b border-[#e5ddd2] bg-white">
+    <main dir="rtl" className="min-h-screen bg-[var(--brand-canvas)] text-[var(--brand-ink)]">
+      <header className="border-b border-[var(--brand-border)] bg-[var(--brand-panel)]">
         <div className="container flex min-h-20 items-center justify-between gap-4">
-          <div className="flex items-center gap-3"><span className="grid size-11 place-items-center rounded-2xl bg-[#163d36] text-[#d8b77c]"><PackagePlus size={21} /></span><div><p className="text-sm font-black">التوكيل</p><h1 className="text-lg font-black">إدارة المنتجات</h1></div></div>
+          <div className="flex items-center gap-3"><BrandLogo tagline={false} /><div className="border-r border-[var(--brand-border)] pr-3"><p className="text-xs font-black text-[var(--brand-gold)]">لوحة التحكم</p><h1 className="text-lg font-black">إدارة المنتجات</h1></div></div>
           <div className="flex items-center gap-2"><Link href="/" className="hidden rounded-xl px-3 py-2 text-sm font-bold text-[#52625c] hover:bg-[#f4f0e9] sm:inline-flex"><ArrowRight size={16} /> عرض المتجر</Link><Button variant="outline" size="sm" onClick={() => void logout()}><LogOut size={15} /> خروج</Button></div>
         </div>
       </header>
@@ -220,14 +288,14 @@ function AdminProductsLive() {
           <div className="mb-5 flex items-center justify-between"><div><p className="text-sm font-black">{editingId ? "تعديل منتج" : "إضافة منتج"}</p><p className="mt-1 text-xs text-[#6e7c75]">ستظهر التغييرات فور الحفظ.</p></div>{editingId && <Button variant="ghost" size="sm" onClick={() => { setEditingId(null); setForm(emptyForm()); }}>إلغاء</Button>}</div>
           <form className="space-y-4" onSubmit={handleSubmit}>
             <Field label="اسم المنتج"><Input value={form.title} onChange={event => updateField("title", event.target.value)} placeholder="مثال: زيت محرك…" required /></Field>
-            <Field label="رابط المنتج"><Input value={form.handle} dir="ltr" onChange={event => updateField("handle", event.target.value.replace(/\s+/g, "-"))} placeholder="engine-oil-5w30" required /></Field>
+            <Field label="رابط المنتج (اختياري)"><Input value={form.handle} dir="ltr" onChange={event => updateField("handle", normalizeProductHandle(event.target.value))} placeholder="يُنشأ تلقائيًا من اسم المنتج" /><p className="text-[11px] leading-5 text-[#6e7c75]">يمكن تركه فارغًا؛ سيُنشأ تلقائيًا من اسم المنتج، أو اكتب رابطًا مخصصًا.</p></Field>
             <div className="grid grid-cols-2 gap-3"><Field label="التصنيف"><select value={form.category} onChange={event => updateField("category", event.target.value as ProductForm["category"])} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"><>{PRODUCT_CATEGORIES.map(category => <option key={category}>{category}</option>)}</></select></Field><Field label="السعر (ج.م)"><Input value={form.price} inputMode="decimal" onChange={event => updateField("price", event.target.value)} placeholder="350" required /></Field></div>
-            <Field label="وصف المنتج"><Textarea value={form.description} onChange={event => updateField("description", event.target.value)} placeholder="اكتب وصفًا واضحًا للمنتج…" className="min-h-28" required /></Field>
+            <Field label="وصف المنتج"><Textarea value={form.description} onChange={event => updateField("description", event.target.value)} placeholder="اكتب وصفًا واضحًا للمنتج…" className="min-h-28" required /><p className="text-[11px] leading-5 text-[#6e7c75]">اكتب 3 أحرف على الأقل، مثل: شيل اسود.</p></Field>
             <Field label="الصورة"><div className="space-y-2"><Input value={form.imageUrl} dir="ltr" onChange={event => updateField("imageUrl", event.target.value)} placeholder="رابط الصورة أو ارفع من جهازك" required /><Label className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-[#cdbb9c] bg-[#fcf9f3] text-xs font-bold text-[#8e672e] hover:bg-[#f7f0e5]"><ImageUp size={15} />{uploadMutation.isPending ? "جارٍ رفع الصورة…" : "رفع صورة من الجهاز"}<input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleImageUpload} className="sr-only" /></Label>{form.imageUrl && <img src={form.imageUrl} alt="معاينة المنتج" className="aspect-[1.7] w-full rounded-xl border border-[#ece6de] object-cover" />}</div></Field>
             <Field label="وصف بديل للصورة"><Input value={form.imageAltText} onChange={event => updateField("imageAltText", event.target.value)} placeholder="مثال: عبوة زيت محرك" /></Field>
             <Field label="وسوم (افصل بينها بفاصلة)"><Input value={form.tags} onChange={event => updateField("tags", event.target.value)} placeholder="زيت محرك، 5 لتر" /></Field>
             <label className="flex cursor-pointer items-center justify-between rounded-xl border border-[#ece6de] px-3 py-3 text-sm font-bold"><span>إظهار المنتج في المتجر</span><input type="checkbox" checked={form.available} onChange={event => updateField("available", event.target.checked)} className="size-4 accent-[#163d36]" /></label>
-            <Button type="submit" className="w-full bg-[#163d36] hover:bg-[#285c50]" disabled={isSaving || uploadMutation.isPending}>{isSaving && <Loader2 className="animate-spin" size={16} />}{editingId ? "حفظ التعديلات" : "إضافة المنتج"}</Button>
+            <Button type="submit" className="w-full bg-[var(--brand-deep)] hover:bg-[var(--brand-forest)]" disabled={isSaving || uploadMutation.isPending}>{isSaving && <Loader2 className="animate-spin" size={16} />}{editingId ? "حفظ التعديلات" : "إضافة المنتج"}</Button>
           </form>
         </section>
       </div>
@@ -250,7 +318,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function AdminNotice({ icon, title, text, action }: { icon: React.ReactNode; title: string; text: string; action?: React.ReactNode }) {
-  return <main dir="rtl" className="grid min-h-screen place-items-center bg-[#f6f3ee] p-6"><section className="w-full max-w-md rounded-[2rem] border border-[#e5ddd2] bg-white p-8 text-center shadow-[0_18px_55px_rgba(20,51,43,.08)]"><span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[#edf3ee] text-[#163d36]">{icon}</span><h1 className="mt-5 text-xl font-black text-[#183c34]">{title}</h1><p className="mt-3 text-sm leading-7 text-[#62716c]">{text}</p><div className="mt-6 flex justify-center">{action ?? <Link href="/" className="rounded-xl bg-[#163d36] px-4 py-2.5 text-sm font-bold text-white">العودة للمتجر</Link>}</div></section></main>;
+  return <main dir="rtl" className="grid min-h-screen place-items-center bg-[var(--brand-canvas)] p-6"><section className="w-full max-w-md rounded-[2rem] border border-[var(--brand-border)] bg-[var(--brand-panel)] p-8 text-center shadow-[0_18px_55px_color-mix(in_oklab,var(--brand-deep)_8%,transparent)]"><span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[var(--brand-soft)] text-[var(--brand-deep)]">{icon}</span><h1 className="mt-5 text-xl font-black text-[var(--brand-ink)]">{title}</h1><p className="mt-3 text-sm leading-7 text-[var(--brand-muted)]">{text}</p><div className="mt-6 flex justify-center">{action ?? <Link href="/" className="rounded-xl bg-[var(--brand-deep)] px-4 py-2.5 text-sm font-bold text-white">العودة للمتجر</Link>}</div></section></main>;
 }
 
 export default function AdminProducts() {
