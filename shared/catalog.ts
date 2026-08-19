@@ -18,3 +18,17 @@ export const PRODUCT_CATEGORIES = [
   "فلاتر الزيت",
   "سوائل التبريد",
 ] as const;
+
+/**
+ * Keeps product handles URL-friendly while allowing Arabic product names.
+ * Spaces and punctuation become a single hyphen; letters and numbers are kept.
+ */
+export function normalizeProductHandle(value: string): string {
+  return value
+    .normalize("NFKC")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-zA-Z0-9\u0600-\u06FF\u0750-\u077F]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 160);
+}
